@@ -8,6 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../locals-input/locals-input.html">
 
 <!--
 An element providing a solution to no problem in particular.
@@ -28,23 +29,24 @@ Example:
       :host {
         display: block;
         box-sizing: border-box;
-      }
-  
-      .author img {
-        display: block;
-        float: left;
-        margin-right: 5px;
-        max-height: 100px;
-        max-width: 100px;
-      }
+      }    
     </style>
-    <h1>&lt;locals-verification&gt;</h1>
-    <content></content>
-    <p class="author">
-      <img src="{{author.image}}">
-      Cheers,<br/>
-      <span class="name">{{author.name}}</span>
-    </p>
+    <template is="dom-if" if="{{_is(mode,'view')}}">
+      <p>je hebt nog geen validaties</p>
+      <locals-button icon="plus" on-tap="addVerification"></locals-button>
+    </template>
+
+    <template is="dom-if" if="{{_is(mode,'start')}}">
+      <h1>Vraag een code aan een gevalideerd locals-avatar</h1>
+      <locals-input bind-value="{{pincode}}"></locals-input>
+      <locals-button on-tap="requestValidation">submit</locals-button>
+    </template>
+
+    <template is="dom-if" if="{{_is(mode,'waiting')}}">
+      <h1>Nu wachten op de partner</h1>
+    </template>
+
+
   </template>
 
 </dom-module>
@@ -57,36 +59,7 @@ Example:
 
     properties: {
 
-      /**
-       * `fancy` indicates that the element should don a monocle and tophat,
-       * while checking its pocket watch.
-       */
-      fancy: Boolean,
-
-      /**
-       * Describes the author of the element, but is really just an excuse to
-       * show off JSDoc annotations.
-       *
-       * @type {{name: string, image: string}}
-       */
-      author: {
-        type: Object,
-        // Use `value` to provide a default value for a property, by setting it
-        // on your element's prototype.
-        //
-        // If you provide a function, as we do here, Polymer will call that
-        // _per element instance_.
-        //
-        // We do that to ensure that each element gets its own copy of the
-        // value, rather than having it shared across all instances (via the
-        // prototype).
-        value: function() {
-          return {
-            name:  'Dimitri Glazkov',
-            image: 'http://addyosmani.com/blog/wp-content/uploads/2013/04/unicorn.jpg',
-          };
-        }
-      },
+    
 
     },
 
@@ -99,6 +72,7 @@ Example:
       //
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
+      this.mode = 'view';
     },
 
     attached: function() {
@@ -132,20 +106,23 @@ Example:
      * @param {string} greeting A positive greeting.
      * @return {string} The full greeting.
      */
-    sayHello: function(greeting) {
-      var response = greeting || 'Hello World!';
-      return 'locals-verification says, ' + response;
-    },
+     addVerification: function(){
+      this.mode = 'start';
+     },
 
-    /**
-     * Attempt to destroy this element's enemies with a beam of light!
-     *
-     * Or, at least, dispatch an event in the vain hope that someone else will
-     * do the zapping.
-     */
-    fireLasers: function() {
-      this.fire('locals-verification-lasers', {sound: 'Pew pew!'});
-    }
+     requestValidation: function(){
+      console.log(this.pincode);
+      // send a whisper request to partner
+      this.mode = 'waiting';
+     },
+
+    _is: function(a, b) {
+        if (b === undefined){
+          b = true;
+        }
+        //console.log(a ,'(',typeof a,') is',b,'(',typeof b,') they are equal for ==',a == b,', they are equal for ===',a === b);
+        return a === b;
+      }
 
   });
 
