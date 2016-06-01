@@ -1,0 +1,74 @@
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../locals-input/locals-input.html">
+
+<script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
+<script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
+
+<!--
+Verification component listens to verification 
+
+Example:
+
+    <locals-verification-validator"></locals-verification-validator>
+
+-->
+<dom-module id="locals-verification-validator">
+
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+      }    
+    </style>
+    <template is="dom-if" if="{{_is(mode,'list')}}">
+      <h1>Jouw code is {{code}}</h1>
+      <p>je hebt nog geen validaties</p>
+      <!-- TODO : hier repeater met pending validations -->
+    </template>
+
+    <template is="dom-if" if="{{_is(mode,'detail')}}">
+      <h1>Toon detail van object in validation mode</h1>
+    </template>
+
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+
+    is: 'locals-verification-validator',
+
+    properties: {
+
+
+    },
+
+    // Element Lifecycle
+
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+      // necessary), or kick off any processes the element wants to perform.
+      this.mode = 'list';
+
+
+
+    },
+
+    attached: function() {
+
+     
+    },
+
+    detached: function() {
+    },
+
+
+  });
+</script>

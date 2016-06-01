@@ -1,12 +1,4 @@
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
+
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../locals-input/locals-input.html">
 
@@ -14,16 +6,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
 
 <!--
-An element providing a solution to no problem in particular.
+Verification component ( the side that requests a validation )
 
 Example:
 
-    <locals-verification></locals-verification>
+    <locals-verification objectdata="{{myobjectdata}}"></locals-verification>
 
-@group Seed Elements
-@element locals-verification
-@demo demo/index.html
-@hero hero.svg
 -->
 <dom-module id="locals-verification">
 
@@ -48,6 +36,7 @@ Example:
     <template is="dom-if" if="{{_is(mode,'waiting')}}">
       <h1>Nu wachten op de partner</h1>
       <locals-button on-tap="cancel">cancel</locals-button>
+      <!-- TODO: Maak hier een tellerke dat aftelt -->
     </template>
 
 
@@ -62,7 +51,7 @@ Example:
 
     properties: {
 
-      avatardata: {
+      objectdata: {
         type: Object
       }
 
@@ -85,13 +74,6 @@ Example:
     },
 
     attached: function() {
-      // `attached` fires once the element and its parents have been inserted
-      // into a document.
-      //
-      // This is a good place to perform any work related to your element's
-      // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-
 
       var whisper = document.querySelector('locals-whisperer');
       var self = this;
@@ -101,6 +83,8 @@ Example:
         var input = JSON.parse(e.detail.input);
         switch (input.command) {
           case "sendaeskey":
+
+            // Received an EAS key encrypted with our public key
             var privkey = self.verifications[input.from].privkey;
             var crypt = new JSEncrypt({
               default_key_size: 512
@@ -108,62 +92,25 @@ Example:
             crypt.setPrivateKey(privkey);
             var passPhrase = crypt.decrypt(input.data);
 
-            // EAS part
+            // passphrase is now the other side's EAS key to encrypt our data
+            var encrypted_objectdata = CryptoJS.AES.encrypt(JSON.stringify(self.objectdata), passPhrase).toString();
 
-            var encryptedAvatar = CryptoJS.AES.encrypt(JSON.stringify(self.avatardata), passPhrase).toString();
-
-            console.log('received AES key , now send avatar data', self.avatardata,encryptedAvatar);
-
-
-          var decryptedAvatar = CryptoJS.AES.decrypt(encryptedAvatar,passPhrase).toString(CryptoJS.enc.Utf8);
-          
-          console.log('AESKEY=--',passPhrase,'--');
-          console.log('ENCDATA=',encryptedAvatar);
-          console.log('DATA=',JSON.stringify(self.avatardata));
-          console.log('DECTAV',decryptedAvatar);
-
-
-
-
+            // send encrypted data to other side
             var whisper = document.querySelector('locals-whisperer');
-
-
             whisper.whisperpost(input.from, JSON.stringify({
               'command': 'senduserdata',
               'from': whisper.topic.toString(),
-              'data': encryptedAvatar
+              'data': encrypted_objectdata
             }));
 
 
         }
       });
-
-
-
     },
 
     detached: function() {
-      // The analog to `attached`, `detached` fires when the element has been
-      // removed from a document.
-      //
-      // Use this to clean up anything you did in `attached`.
     },
 
-    // Element Behavior
-
-    /**
-     * The `locals-verification-lasers` event is fired whenever `fireLasers` is called.
-     *
-     * @event locals-verification-lasers
-     * @detail {{sound: String}}
-     */
-
-    /**
-     * Sometimes it's just nice to say hi.
-     *
-     * @param {string} greeting A positive greeting.
-     * @return {string} The full greeting.
-     */
     addVerification: function() {
       this.mode = 'start';
     },
@@ -177,7 +124,6 @@ Example:
       console.log(this.pincode);
       // send a whisper request to partner
 
-      //      this.channel = this._generateCode();
       var whisper = document.querySelector('locals-whisperer');
 
       var crypt = new JSEncrypt({
@@ -188,10 +134,6 @@ Example:
         pubkey: crypt.getPublicKey(),
         privkey: crypt.getPrivateKey()
       };
-
-      //         var crypt = new JSEncrypt({default_key_size: 512});
-      //        this.pubkey = crypt.getPublicKey();
-      //        this.privkey = crypt.getPrivateKey();
 
       whisper.whisperpost(this.pincode, JSON.stringify({
         'command': 'senduserrequest',
@@ -207,8 +149,7 @@ Example:
     _is: function(a, b) {
       if (b === undefined) {
         b = true;
-      }
-      //console.log(a ,'(',typeof a,') is',b,'(',typeof b,') they are equal for ==',a == b,', they are equal for ===',a === b);
+      }     
       return a === b;
     }
 
