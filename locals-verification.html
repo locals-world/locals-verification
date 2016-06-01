@@ -10,6 +10,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../locals-input/locals-input.html">
 
+<script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
+<script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
+
 <!--
 An element providing a solution to no problem in particular.
 
@@ -44,6 +47,7 @@ Example:
 
     <template is="dom-if" if="{{_is(mode,'waiting')}}">
       <h1>Nu wachten op de partner</h1>
+      <locals-button on-tap="cancel">cancel</locals-button>
     </template>
 
 
@@ -52,14 +56,15 @@ Example:
 </dom-module>
 
 <script>
-
   Polymer({
 
     is: 'locals-verification',
 
     properties: {
 
-    
+      avatardata: {
+        type: Object
+      }
 
     },
 
@@ -73,6 +78,10 @@ Example:
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
       this.mode = 'view';
+
+      this.verifications = {};
+
+
     },
 
     attached: function() {
@@ -82,6 +91,55 @@ Example:
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).
+
+
+      var whisper = document.querySelector('locals-whisperer');
+      var self = this;
+      whisper.addEventListener('msg-received', function(e) {
+
+        console.log('locals-verification MSG receieved', e.detail);
+        var input = JSON.parse(e.detail.input);
+        switch (input.command) {
+          case "sendaeskey":
+            var privkey = self.verifications[input.from].privkey;
+            var crypt = new JSEncrypt({
+              default_key_size: 512
+            });
+            crypt.setPrivateKey(privkey);
+            var passPhrase = crypt.decrypt(input.data);
+
+            // EAS part
+
+            var encryptedAvatar = CryptoJS.AES.encrypt(JSON.stringify(self.avatardata), passPhrase).toString();
+
+            console.log('received AES key , now send avatar data', self.avatardata,encryptedAvatar);
+
+
+          var decryptedAvatar = CryptoJS.AES.decrypt(encryptedAvatar,passPhrase).toString(CryptoJS.enc.Utf8);
+          
+          console.log('AESKEY=--',passPhrase,'--');
+          console.log('ENCDATA=',encryptedAvatar);
+          console.log('DATA=',JSON.stringify(self.avatardata));
+          console.log('DECTAV',decryptedAvatar);
+
+
+
+
+            var whisper = document.querySelector('locals-whisperer');
+
+
+            whisper.whisperpost(input.from, JSON.stringify({
+              'command': 'senduserdata',
+              'from': whisper.topic.toString(),
+              'data': encryptedAvatar
+            }));
+
+
+        }
+      });
+
+
+
     },
 
     detached: function() {
@@ -106,24 +164,53 @@ Example:
      * @param {string} greeting A positive greeting.
      * @return {string} The full greeting.
      */
-     addVerification: function(){
+    addVerification: function() {
       this.mode = 'start';
-     },
+    },
 
-     requestValidation: function(){
+    cancel: function() {
+      this.mode = 'start';
+
+    },
+
+    requestValidation: function() {
       console.log(this.pincode);
       // send a whisper request to partner
+
+      //      this.channel = this._generateCode();
+      var whisper = document.querySelector('locals-whisperer');
+
+      var crypt = new JSEncrypt({
+        default_key_size: 512
+      });
+
+      this.verifications[this.pincode] = {
+        pubkey: crypt.getPublicKey(),
+        privkey: crypt.getPrivateKey()
+      };
+
+      //         var crypt = new JSEncrypt({default_key_size: 512});
+      //        this.pubkey = crypt.getPublicKey();
+      //        this.privkey = crypt.getPrivateKey();
+
+      whisper.whisperpost(this.pincode, JSON.stringify({
+        'command': 'senduserrequest',
+        'from': whisper.topic.toString(),
+        'data': {
+          'pubkey': this.verifications[this.pincode].pubkey
+        }
+      }));
+
       this.mode = 'waiting';
-     },
+    },
 
     _is: function(a, b) {
-        if (b === undefined){
-          b = true;
-        }
-        //console.log(a ,'(',typeof a,') is',b,'(',typeof b,') they are equal for ==',a == b,', they are equal for ===',a === b);
-        return a === b;
+      if (b === undefined) {
+        b = true;
       }
+      //console.log(a ,'(',typeof a,') is',b,'(',typeof b,') they are equal for ==',a == b,', they are equal for ===',a === b);
+      return a === b;
+    }
 
   });
-
 </script>

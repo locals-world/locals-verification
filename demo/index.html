@@ -17,30 +17,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../locals-verification.html">
   </head>
   <body unresolved>
-
-    <p>An example of <code>&lt;locals-verification&gt;</code>:</p>
-
-    <p>Make words! <button id="saybtn">Say Something</button></p>
-    <p>Make lasers! <button id="laserbtn">Fire lasers</button></p>
-
-    <locals-verification author='{"name": "Lord Meowser", "image": "http://placekitten.com/g/200/300"}' fancy>
-      <h2>Hello locals-verification</h2>
-    </locals-verification>
-
+ <template is="dom-bind" id="app">
+  <locals-verification code="{{code}}"></locals-verification>
+  <!-- <locals-verification receiver></locals-verification> -->
+  </template>
     <script>
-      var seedElement = document.querySelector('locals-verification');
+      var app = document.querySelector('app');
+
+//      app.
+
       
-      document.querySelector('#saybtn').addEventListener('click', function() {
-        alert(seedElement.sayHello('Hallo!'));
-      });
+      // document.querySelector('#saybtn').addEventListener('click', function() {
+      //   alert(seedElement.sayHello('Hallo!'));
+      // });
       
-      document.querySelector('#laserbtn').addEventListener('click', function() {
-        seedElement.fireLasers();
-      });
+      // document.querySelector('#laserbtn').addEventListener('click', function() {
+      //   seedElement.fireLasers();
+      // });
       
-      document.addEventListener("locals-verification-lasers", function(e) {
-        console.log(e.detail.sound);
-      });
+      // document.addEventListener("locals-verification-lasers", function(e) {
+      //   console.log(e.detail.sound);
+      // });
       
     </script>
 
