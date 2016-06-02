@@ -1,6 +1,7 @@
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../locals-input/locals-input.html">
+<link rel="import" href="../locals-button/locals-button.html">
 
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
@@ -23,7 +24,7 @@ Example:
       }    
     </style>
     <template is="dom-if" if="{{_is(visualmode,'button')}}">
-    Ne knop
+    <locals-button icon="addval" txtcolor="white" bg="darkgrey" small></locals-button>
     </template>
 
     <template is="dom-if" if="{{_is(visualmode,'list')}}">
@@ -58,11 +59,16 @@ Example:
     },
 
     attached: function() {
-      this.visualmode = this,mode || 'list';     
+      this.visualmode = this.mode || 'list';     
     },
 
     detached: function() {
     },
-    
+    _is: function(a, b) {
+      if (b === undefined) {
+        b = true;
+      }     
+      return a === b;
+    }    
   });
 </script>

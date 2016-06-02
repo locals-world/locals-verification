@@ -21,7 +21,9 @@
     "polymer": "Polymer/polymer#^1.1.0",
     "web3-wallet": "^0.0.8",
     "jsencrypt": "^2.3.0",
-    "cryptojslib": "^3.1.2"
+    "cryptojslib": "^3.1.2",
+    "locals-input": "https://github.com/locals-world/locals-input.git",
+    "locals-button": "https://github.com/locals-world/locals-button.git#^0.0.7"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
