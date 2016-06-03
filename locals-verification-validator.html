@@ -2,6 +2,8 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../locals-input/locals-input.html">
 <link rel="import" href="../locals-button/locals-button.html">
+<link rel="import" href="../locals-style/locals-style.html">
+
 
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
@@ -21,16 +23,79 @@ Example:
       :host {
         display: block;
         box-sizing: border-box;
-      }    
+      }
+      .valbtn {
+        margin-right: 10px; 
+      }
+
+      h1 {
+        @apply(--locals-font-h1);
+        text-align: center;
+      }
+
+      p {
+        @apply(--locals-font-body1);
+      }
+
+      .total {
+        width: 100vw;
+        height: 100vh;
+        @apply(--layout-vertical);
+        background-color: var(--locals-grey1);
+      }
+
+      .topbar {
+        width: 100%;
+        background-color: transparent;
+        height: var(--topbar-height);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        box-sizing: border-box;
+        padding: 10px 20px 10px 10px;
+        }
+
+      .flex {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+
+      .main {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0px 50px 0px 50px;
+        @apply(--layout-horizontal);
+        @apply(--layout-start);
+        @apply(--layout-center-justified);        
+      }
+      .addbtn {
+        margin: 15px;
+      }
+      .homebtn {
+        transition: all 5s linear;
+      }
+      .exit {
+        -ms-transform: rotate(45deg); /* IE 9 */
+        -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+        transform: rotate(45deg);
+      }
+
     </style>
     <template is="dom-if" if="{{_is(visualmode,'button')}}">
-    <locals-button icon="addval" txtcolor="white" bg="darkgrey" small></locals-button>
+    <locals-button class="valbtn" icon="addval" small></locals-button>
     </template>
 
     <template is="dom-if" if="{{_is(visualmode,'list')}}">
+    <div class="total">
+        <div class="topbar">
+          <p class="flex"></p>
+          <!-- <locals-button class$="{{btnclass}} homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button> -->
+          <locals-button class="exit homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button>
+        </div>
+
       <h1>Jouw code is {{code}}</h1>
       <p>je hebt nog geen validaties</p>
       <!-- TODO : hier repeater met pending validations -->
+    </div>
     </template>
 
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
@@ -47,6 +112,10 @@ Example:
     is: 'locals-verification-validator',
 
     properties: {
+      sizeview: {
+        type: String,
+        observer: '_sizeview'
+      },
       mode: {
         type: String,
       }
@@ -63,6 +132,29 @@ Example:
     },
 
     detached: function() {
+    },
+
+    toHome:function(){
+      this.fire('to-home');
+    },
+
+    _sizeview: function(){
+      switch(this.sizeview) {
+        case 'phone':
+            this.customStyle['--topbar-height'] = '100px';
+            this.updateStyles();
+            break;
+        case 'desktop':
+            this.customStyle['--topbar-height'] = '100px';
+            this.updateStyles();
+            break;
+        case 'xlarge':
+            this.customStyle['--topbar-height'] = '100px';
+            this.updateStyles();
+            break;
+        default:
+        console.log("!!! ** Niks");
+      }
     },
     _is: function(a, b) {
       if (b === undefined) {
