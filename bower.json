@@ -23,7 +23,7 @@
     "jsencrypt": "^2.3.0",
     "cryptojslib": "^3.1.2",
     "locals-input": "https://github.com/locals-world/locals-input.git",
-    "locals-button": "https://github.com/locals-world/locals-button.git#^0.0.7",
+    "locals-button": "https://github.com/locals-world/locals-button.git",
     "locals-style": "https://github.com/locals-world/locals-style.git"
   },
   "devDependencies": {
