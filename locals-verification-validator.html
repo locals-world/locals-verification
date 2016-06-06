@@ -2,8 +2,11 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../locals-input/locals-input.html">
 <link rel="import" href="../locals-button/locals-button.html">
+<link rel="import" href="../locals-button/locals-button.html">
+<link rel="import" href="../locals-progress/locals-progress.html">
 <link rel="import" href="../locals-style/locals-style.html">
 
+<link rel="import" href="../../bower_components/locals-whisperer/locals-whisperer.html">
 
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
@@ -80,6 +83,10 @@ Example:
       }
 
     </style>
+
+
+    <locals-whisperer web3="{{web3}}" topic="{{topic}}" progress="{{progress}}" decimals="2" id="whisper" on-msg-received="processMsg"></locals-whisperer>
+
     <template is="dom-if" if="{{_is(visualmode,'button')}}">
     <locals-button class="valbtn" icon="addval" small></locals-button>
     </template>
@@ -92,7 +99,7 @@ Example:
           <locals-button class="exit homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button>
         </div>
 
-      <h1>Jouw code is {{code}}</h1>
+      <h1>Jouw code is {{topic}} <locals-progress round value="{{progress}}" max="100" size="20"></locals-progress></h1>
       <p>je hebt nog geen validaties</p>
       <!-- TODO : hier repeater met pending validations -->
     </div>
@@ -118,6 +125,10 @@ Example:
       },
       mode: {
         type: String,
+      },
+      web3: {
+        type: Object,
+        notify : true
       }
 
     },
