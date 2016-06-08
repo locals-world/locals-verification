@@ -5,6 +5,8 @@
 <link rel="import" href="../locals-button/locals-button.html">
 <link rel="import" href="../locals-progress/locals-progress.html">
 <link rel="import" href="../locals-style/locals-style.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
+
 
 <link rel="import" href="../../bower_components/locals-whisperer/locals-whisperer.html">
 
@@ -85,7 +87,9 @@ Example:
     </style>
 
 
-    <locals-whisperer web3="{{web3}}" topic="{{topic}}" progress="{{progress}}" decimals="2" id="whisper" on-msg-received="processMsg"></locals-whisperer>
+    <iron-localstorage 
+      name="locals-validations" 
+      value="{{validations}}"></iron-localstorage>
 
     <template is="dom-if" if="{{_is(visualmode,'button')}}">
     <locals-button class="valbtn" icon="addval" small></locals-button>
@@ -101,7 +105,9 @@ Example:
 
       <h1>Jouw code is {{topic}} <locals-progress round value="{{progress}}" max="100" size="20"></locals-progress></h1>
       <p>je hebt nog geen validaties</p>
-      <!-- TODO : hier repeater met pending validations -->
+      <template is="dom-repeat" items="{{validations}}">
+        <div>Validation {{item.channel}} {{item.avatardata.firstname}}</div>
+      </template>
     </div>
     </template>
 
@@ -125,12 +131,7 @@ Example:
       },
       mode: {
         type: String,
-      },
-      web3: {
-        type: Object,
-        notify : true
       }
-
     },
 
     // Element Lifecycle
@@ -139,6 +140,7 @@ Example:
     },
 
     attached: function() {
+      //debugger;
       this.visualmode = this.mode || 'list';     
     },
 
@@ -172,6 +174,84 @@ Example:
         b = true;
       }     
       return a === b;
-    }    
+    }    ,
+
+
+
+      processMsg: function(e){
+        console.log('incoming whisper msg: ', e.detail);
+
+        var input = JSON.parse(e.detail.input)
+
+        switch (input.command){
+          case "senduserrequest":
+            console.log('create AES key and send it to other party', input.data);
+
+            var crypt = new JSEncrypt({
+              default_key_size: 512
+            });
+            crypt.setPublicKey(input.data.pubkey);
+
+            var aeskey = generateKey(50);
+            this.validations[input.from] = {
+              easkey: aeskey,
+              pubkey:input.data.pubkey
+            };
+
+            var encryptedkey = crypt.encrypt(aeskey);
+
+            this.$.whisper.whisperpost(input.from, JSON.stringify({
+              command: 'sendaeskey',
+              from: this.$.whisper.topic,
+              data: encryptedkey
+            }));
+
+            break;
+          case "senduserdata" :
+
+          var easKey = this.validations[input.from].easkey;
+//debugger;
+          var decryptedAvatar = CryptoJS.AES.decrypt(input.data,easKey).toString(CryptoJS.enc.Utf8);
+
+          console.log('AESKEY=--',easKey,'--');
+          console.log('ENCDATA=',input.data);
+          console.log('DATA=',decryptedAvatar);
+
+          var validation = {
+            avatardata: decryptedAvatar,
+            channel: input.from
+          }
+
+          this.validations.push(validation);
+
+
+
+            //console.log('show data + validate',input.data,decryptedAvatar);
+            break;
+
+          default:
+            //console.log('discard message',e.detail);
+            break;
+
+        }        
+
+
+        // define the characters to pick from
+       
+        // create a key for symmetric encryption
+        // pass in the desired length of your key
+        function generateKey(keyLength){
+           var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz*&-%/!?*+=()";
+          var randomstring = '';
+          
+          for (var i=0; i < keyLength; i++) {
+            var rnum = Math.floor(Math.random() * chars.length);
+            randomstring += chars.substring(rnum,rnum+1);
+          }
+          return randomstring;
+        };
+
+      },
+
   });
 </script>
