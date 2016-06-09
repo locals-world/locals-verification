@@ -84,6 +84,8 @@ Example:
         switch (input.command) {
           case "sendaeskey":
 
+
+
             // Received an EAS key encrypted with our public key
             var privkey = self.verifications[input.from].privkey;
             var crypt = new JSEncrypt({
@@ -92,8 +94,14 @@ Example:
             crypt.setPrivateKey(privkey);
             var passPhrase = crypt.decrypt(input.data);
 
+            console.log('locals-verification: step 3 decrypt AES key', input.data, '=>',passPhrase);
+
+            var objectdataString = JSON.stringify(self.objectdata);
+
             // passphrase is now the other side's EAS key to encrypt our data
-            var encrypted_objectdata = CryptoJS.AES.encrypt(JSON.stringify(self.objectdata), passPhrase).toString();
+            var encrypted_objectdata = CryptoJS.AES.encrypt(objectdataString, passPhrase).toString();
+
+            console.log('locals-verification: step 3.1 encrypt avatar object', objectdataString, '=>',encrypted_objectdata);
 
             // send encrypted data to other side
             var whisper = document.querySelector('locals-whisperer');
@@ -134,6 +142,8 @@ Example:
         pubkey: crypt.getPublicKey(),
         privkey: crypt.getPrivateKey()
       };
+
+      console.log('locals-whisperer: step 1 : send senduserrequest (pubkey) to channel ',this.pincode);
 
       whisper.whisperpost(this.pincode, JSON.stringify({
         'command': 'senduserrequest',

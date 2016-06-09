@@ -174,7 +174,7 @@ Example:
 
         switch (input.command){
           case "senduserrequest":
-            console.log('locals-verification-handler : create AES key and send it to channel',input.from, input.data);
+            console.log('locals-verification-handler : step 2 : recieved pubkey ',input.data.pubkey,', now create AES key and send it to channel',input.from, input.data);
 
             var crypt = new JSEncrypt({
               default_key_size: 512
@@ -189,6 +189,9 @@ Example:
             });
 
             var encryptedkey = crypt.encrypt(aeskey);
+            console.log('locals-verification-handler: encrypting AES key ',aeskey,'=>',encryptedkey);
+
+            console.log('locals-verification-handler: step 2.1 : send encrypted AES key to channel',this.whisper.topic);
 
             this.whisper.whisperpost(input.from, JSON.stringify({
               command: 'sendaeskey',
@@ -203,20 +206,22 @@ Example:
 
             var decryptedAvatar = CryptoJS.AES.decrypt(input.data,easKey).toString(CryptoJS.enc.Utf8);
 
+            console.log('locals-verification-handler: step 4 : received encrypted avatar data. Decrypt with key',easKey,input.data,'=>',decryptedAvatar);
+
             console.log('AESKEY=--',easKey,'--');
             console.log('ENCDATA=',input.data);
             console.log('DATA=',decryptedAvatar);
 
             if (this.incomingvalidations[input.from]){
-              this.set('incomingvalidations.' + input.from +'.avatardata',decryptedAvatar);
+              this.set('incomingvalidations.' + input.from +'.avatardata',JSON.parse(decryptedAvatar));
             }
 
             //console.log('show data + validate',input.data,decryptedAvatar);
             break;
 
           default:
-            debugger;
-            console.log('discard message',e.detail);
+            //debugger;
+            //console.log('discard message',e.detail);
             break;
 
         }        

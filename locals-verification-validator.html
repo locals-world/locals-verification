@@ -105,7 +105,7 @@ Example:
       </template>
       <iron-selector attr-for-selected="key" selected="{{selected}}" on-iron-select="goDetail">
         <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
-          <div key="{{item._key}}">Validation {{item._key}} {{item.avatardata.firstname}}</div>
+          <div key="{{item._key}}">Validation {{item._key}} {{item.avatardata.firstname}} - {{item.avatardata.lastname}}</div>
         </template>
       </iron-selector>
     </div>
@@ -163,63 +163,59 @@ Example:
     },
 
     attached: function() {
-      //debugger;
-      this.visualmode = 'detail';
-
-      //this.visualmode = this.mode || 'list';     
-      console.log('locals-verification-validator topic is',this.topic);
-
+      this.visualmode = 'detail';    
+      console.log('locals-verification-validator topic is', this.topic);
     },
 
     detached: function() {
 
     },
 
-    toHome:function(){
+    toHome: function() {
       this.fire('to-home');
     },
 
-    goDetail: function(){
+    goDetail: function() {
       this.visualmode = 'detail';
     },
 
-    backList: function(){
+    backList: function() {
       this.visualmode = 'list';
     },
 
-    addValidation: function(){
+    addValidation: function() {
       var self = this;
       console.log('laat ons da eens naar een smart contract sturen');
-      console.log('ik heb de user zijn account: ',this.fixaddress(this.account));
+      console.log('ik heb de user zijn account: ', this.fixaddress(this.account));
       this.web3.eth.getGasPrice(function(err, result) {
-          var gasPrice = result.toNumber(10);
-          var MyContract = self.web3.eth.contract(self.contractabi);
-          var myContractInstance = MyContract.at(self.contractaddress);
+        var gasPrice = result.toNumber(10);
+        var MyContract = self.web3.eth.contract(self.contractabi);
+        var myContractInstance = MyContract.at(self.contractaddress);
 
-          result = myContractInstance.addVerification.sendTransaction(VARS, {
-              from: self.fixaddress(self.account),
-              gasPrice: gasPrice,
-              gasLimit: 3000000,
-              gas: 2000000,
-              data: self.contractjson.bytecode
-            },
-            function(err, result) {
-              if (err !== null) {
-                console.log(err);
-                console.log('ERROR: Transaction didnt go through. See console.');
-              } else {
-                console.log('Transaction Successful!');
-                self.progress = 'addedtoindex';
-                console.log('Tx hash=', result);
-                // set vote status to TxHash received 
-                self.transactionHash = result;
-              }
-            });
-        }
+        result = myContractInstance.addVerification.sendTransaction(VARS, {
+            from: self.fixaddress(self.account),
+            gasPrice: gasPrice,
+            gasLimit: 3000000,
+            gas: 2000000,
+            data: self.contractjson.bytecode
+          },
+          function(err, result) {
+            if (err !== null) {
+              console.log(err);
+              console.log('ERROR: Transaction didnt go through. See console.');
+            } else {
+              console.log('Transaction Successful!');
+              self.progress = 'addedtoindex';
+              console.log('Tx hash=', result);
+              // set vote status to TxHash received 
+              self.transactionHash = result;
+            }
+          });
+      });
 
     },
 
-    object2array: function(input){
+    object2array: function(input) {
       var newarray = [];
       var p = input;
       for (var key in p) {
@@ -231,120 +227,111 @@ Example:
       return newarray;
     },
 
-   
 
-    _sizeview: function(){
-      switch(this.sizeview) {
+
+    _sizeview: function() {
+      switch (this.sizeview) {
         case 'phone':
-            this.customStyle['--topbar-height'] = '100px';
-            this.updateStyles();
-            break;
+          this.customStyle['--topbar-height'] = '100px';
+          this.updateStyles();
+          break;
         case 'desktop':
-            this.customStyle['--topbar-height'] = '100px';
-            this.updateStyles();
-            break;
+          this.customStyle['--topbar-height'] = '100px';
+          this.updateStyles();
+          break;
         case 'xlarge':
-            this.customStyle['--topbar-height'] = '100px';
-            this.updateStyles();
-            break;
+          this.customStyle['--topbar-height'] = '100px';
+          this.updateStyles();
+          break;
         default:
-        console.log("!!! ** Niks");
+          console.log("!!! ** Niks");
       }
     },
     _is: function(a, b) {
       if (b === undefined) {
         b = true;
-      }     
+      }
       return a === b;
-    }    ,
+    },
 
 
 
-      processMsg: function(e){
-        console.log('incoming whisper msg: ', e.detail);
+    processMsg: function(e) {
+      console.log('incoming whisper msg: ', e.detail);
 
-        var input = JSON.parse(e.detail.input)
+      var input = JSON.parse(e.detail.input)
 
-        switch (input.command){
-          case "senduserrequest":
-            console.log('create AES key and send it to other party', input.data);
+      switch (input.command) {
+        case "senduserrequest":
+          console.log('create AES key and send it to other party', input.data);
 
-            var crypt = new JSEncrypt({
-              default_key_size: 512
-            });
-            crypt.setPublicKey(input.data.pubkey);
+          var crypt = new JSEncrypt({
+            default_key_size: 512
+          });
+          crypt.setPublicKey(input.data.pubkey);
 
-            var aeskey = generateKey(50);
-            this.validations[input.from] = {
-              easkey: aeskey,
-              pubkey:input.data.pubkey
-            };
+          var aeskey = generateKey(50);
+          this.validations[input.from] = {
+            easkey: aeskey,
+            pubkey: input.data.pubkey
+          };
 
-            var encryptedkey = crypt.encrypt(aeskey);
+          var encryptedkey = crypt.encrypt(aeskey);
 
-            this.$.whisper.whisperpost(input.from, JSON.stringify({
-              command: 'sendaeskey',
-              from: this.$.whisper.topic,
-              data: encryptedkey
-            }));
+          this.$.whisper.whisperpost(input.from, JSON.stringify({
+            command: 'sendaeskey',
+            from: this.$.whisper.topic,
+            data: encryptedkey
+          }));
 
-            break;
-          case "senduserdata" :
+          break;
+        case "senduserdata":
 
           var easKey = this.validations[input.from].easkey;
-//debugger;
-          var decryptedAvatar = CryptoJS.AES.decrypt(input.data,easKey).toString(CryptoJS.enc.Utf8);
 
-          console.log('AESKEY=--',easKey,'--');
-          console.log('ENCDATA=',input.data);
-          console.log('DATA=',decryptedAvatar);
+          var decryptedAvatar = CryptoJS.AES.decrypt(input.data, easKey).toString(CryptoJS.enc.Utf8);
+          var decryptedAvatarJson;
 
-          var validation = {
-            avatardata: decryptedAvatar,
-            channel: input.from
+          try{
+            decryptedAvatarJson = JSON.parse(decryptedAvatar);
+            this.set('this.validations.' + input.from + '.avatardata',decryptedAvatarJson);
+          }catch(e){
+            console.err('locals-verification-validator: failed to decode avatar data',e);
           }
 
-          this.validations.push(validation);
+          break;
 
+        default:
+          //console.log('discard message',e.detail);
+          break;
 
-
-            //console.log('show data + validate',input.data,decryptedAvatar);
-            break;
-
-          default:
-            //console.log('discard message',e.detail);
-            break;
-
-        }        
-
-
-        // define the characters to pick from
-       
-        // create a key for symmetric encryption
-        // pass in the desired length of your key
-        function generateKey(keyLength){
-           var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz*&-%/!?*+=()";
-          var randomstring = '';
-          
-          for (var i=0; i < keyLength; i++) {
-            var rnum = Math.floor(Math.random() * chars.length);
-            randomstring += chars.substring(rnum,rnum+1);
-          }
-          return randomstring;
-        };
-
-      },
-
-      fixaddress: function(address) {
-        function strStartsWith(str, prefix) {
-          return str.indexOf(prefix) === 0;
-        }
-
-        if (!strStartsWith(address, '0x')) {
-          return ('0x' + address);
-        }
-        return address;
       }
+
+      // create a key for symmetric encryption
+      // pass in the desired length of your key
+      function generateKey(keyLength) {
+        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz*&-%/!?*+=()";
+        var randomstring = '';
+
+        for (var i = 0; i < keyLength; i++) {
+          var rnum = Math.floor(Math.random() * chars.length);
+          randomstring += chars.substring(rnum, rnum + 1);
+        }
+        return randomstring;
+      };
+
+    },
+
+    fixaddress: function(address) {
+      function strStartsWith(str, prefix) {
+        return str.indexOf(prefix) === 0;
+      }
+
+      if (!strStartsWith(address, '0x')) {
+        return ('0x' + address);
+      }
+      return address;
+    }
 
 
   });
