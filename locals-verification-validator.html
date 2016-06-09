@@ -120,6 +120,7 @@ Example:
       <div class="total">
         <h1><span>{{selected}}</span> bevestig?</h1>
          <locals-confirm on-confirm="addValidation" on-cancel="backList">Valideren?</locals-confirm>
+         <span>{{transactionHash}}</span>
       </div>
     </template>
 
@@ -192,9 +193,35 @@ Example:
     },
 
     addValidation: function(){
+      var self = this;
       console.log('laat ons da eens naar een smart contract sturen');
       console.log('ik heb de user zijn account: ',this.fixaddress(this.account));
-      
+      this.web3.eth.getGasPrice(function(err, result) {
+          var gasPrice = result.toNumber(10);
+          var MyContract = self.web3.eth.contract(self.contractabi);
+          var myContractInstance = MyContract.at(self.contractaddress);
+
+          result = myContractInstance.addVerification.sendTransaction(VARS, {
+              from: self.fixaddress(self.account),
+              gasPrice: gasPrice,
+              gasLimit: 3000000,
+              gas: 2000000,
+              data: self.contractjson.bytecode
+            },
+            function(err, result) {
+              if (err !== null) {
+                console.log(err);
+                console.log('ERROR: Transaction didnt go through. See console.');
+              } else {
+                console.log('Transaction Successful!');
+                self.progress = 'addedtoindex';
+                console.log('Tx hash=', result);
+                // set vote status to TxHash received 
+                self.transactionHash = result;
+              }
+            });
+        }
+
     },
 
     object2array: function(input){
