@@ -25,11 +25,36 @@ Example:
 <dom-module id="locals-verification-handler">
 
   <template>
-
+  <style>
+  :host {
+    display: block;
+    box-sizing: border-box;
+    margin-right: 10px;
+  } 
+  </style>
     <iron-localstorage 
       name="locals-validations" 
       value="{{incomingvalidations}}"
     ></iron-localstorage>
+
+
+    <template is="dom-if" if="{{novals}}">
+      <locals-button class="valbtn" icon="addval" small></locals-button>
+    </template>
+    <template is="dom-if" if="{{!novals}}">
+<!--       <div class$="{{valclass}} vals">
+        <p>{{vals}}</p>
+      </div> -->
+      <div class="vals">
+        <p>{{vals}}</p>
+      </div>
+    </template>
+
+
+
+
+
+
 
   </template>
 
@@ -51,7 +76,21 @@ Example:
       incomingvalidations: {
         type: Object,
         notify: true
-      }
+      },
+      vals: {
+        type: Number,
+        notify: true,
+        value: 0,
+        observer: '_vals'
+      },
+
+      novals: {
+        type: Boolean,
+        value: true
+      },
+
+
+
     },
 
     // Element Lifecycle
