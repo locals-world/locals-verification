@@ -106,14 +106,16 @@ Example:
       <template is="dom-if" if="{{!validations}}">
         <p>je hebt nog geen validaties</p>
       </template>
-      <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
-        <div>Validation {{item._key}} {{item.avatardata.firstname}}</div>
-      </template>
+      <iron-selector attr-for-selected="key" selected="{{selected}}" on-iron-select="goDetail">
+        <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
+          <div key="{{item._key}}">Validation {{item._key}} {{item.avatardata.firstname}}</div>
+        </template>
+      </iron-selector>
     </div>
     </template>
 
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
-      <h1>Toon detail van object in validation mode</h1>
+      <h1>Toon detail van <span>{{selected}}</span> in validation mode</h1>
     </template>
 
   </template>
@@ -158,6 +160,10 @@ Example:
     },
 
     detached: function() {
+    },
+
+    goDetail: function(){
+            this.visualmode = 'detail';
     },
 
     object2array: function(input){
