@@ -99,7 +99,10 @@ Example:
           <locals-button class="exit homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button>
         </div>
 
-        <h1>Jouw code is <span>{{topic}}</span> <locals-progress round value="{{progress}}" max="100" size="20"></locals-progress></h1>
+        <h1>Jouw code is <span>{{topic}}</span>
+<!--         <locals-progress round value="{{progress}}" max="100" size="20"></locals-progress> -->
+        </h1>
+        <p>en de progress is= <span>{{progress}}</span></p>
       <template is="dom-if" if="{{!validations}}">
         <p>je hebt nog geen validaties</p>
       </template>
@@ -144,7 +147,7 @@ Example:
       },
       contractaddr: {
         type: String,
-        value: ''
+        value: '0xdd9894fAc561dd07A2765B3985f7E4BfAe1dB636'
       },
       contractabi: {
         type: Object,
@@ -185,33 +188,43 @@ Example:
 
     addValidation: function() {
       var self = this;
-      console.log('laat ons da eens naar een smart contract sturen');
-      console.log('ik heb de user zijn account: ', this.fixaddress(this.account));
-      this.web3.eth.getGasPrice(function(err, result) {
-        var gasPrice = result.toNumber(10);
-        var MyContract = self.web3.eth.contract(self.contractabi);
-        var myContractInstance = MyContract.at(self.contractaddress);
 
-        result = myContractInstance.addVerification.sendTransaction(VARS, {
-            from: self.fixaddress(self.account),
-            gasPrice: gasPrice,
-            gasLimit: 3000000,
-            gas: 2000000,
-            data: self.contractjson.bytecode
-          },
-          function(err, result) {
-            if (err !== null) {
-              console.log(err);
-              console.log('ERROR: Transaction didnt go through. See console.');
-            } else {
-              console.log('Transaction Successful!');
-              self.progress = 'addedtoindex';
-              console.log('Tx hash=', result);
-              // set vote status to TxHash received 
-              self.transactionHash = result;
-            }
-          });
-      });
+      console.log('ik heb de user zijn account: ',this.fixaddress(this.account));
+
+      this.contracturl = this.resolveUrl('../../contracts/localsAvatar.json');
+      this.importHref(this.contracturl, function(e) {
+        this.progress = 'addingtoindex';
+        self.contractjson = JSON.parse(e.target.import.body.innerText);
+      this.web3.eth.getGasPrice(function(err, result) {
+          var gasPrice = result.toNumber(10);
+          console.log('gasprice: ', gasPrice);  
+          var MyContract = self.web3.eth.contract(self.contractjson.abi);
+          var myContractInstance = MyContract.at(self.contractaddr);
+
+          var otheruser = '0xfd5A58b4a5490A1A5928d08c4B9738877B97fFE9';// 'daisy'
+          var hash = 'sha3hash';
+
+          result = myContractInstance.addVerification.sendTransaction(otheruser, hash, {
+              from: self.fixaddress(self.account),
+              gasPrice: gasPrice,
+              gasLimit: 3000000,
+              gas: 2000000,
+              data: self.contractjson.bytecode
+            },
+            function(err, result) {
+              if (err !== null) {
+                console.log(err);
+                console.log('ERROR: Transaction didnt go through. See console.');
+              } else {
+                console.log('Transaction Successful!');
+                self.progress = 'addedtoindex';
+                console.log('Tx hash=', result);
+                // set vote status to TxHash received 
+                self.transactionHash = result;
+              }
+            });
+        });
+    });
 
     },
 
