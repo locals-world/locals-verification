@@ -80,7 +80,7 @@ Example:
       whisper.addEventListener('msg-received', function(e) {
 
         console.log('locals-verification MSG receieved', e.detail);
-        var input = JSON.parse(e.detail.input);
+        var input = e.detail.payload;
         switch (input.command) {
           case "sendaeskey":
 
