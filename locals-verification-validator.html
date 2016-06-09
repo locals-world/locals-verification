@@ -4,6 +4,8 @@
 <link rel="import" href="../locals-button/locals-button.html">
 <link rel="import" href="../locals-progress/locals-progress.html">
 <link rel="import" href="../locals-style/locals-style.html">
+<link rel="import" href="../locals-confirm/locals-confirm.html">
+
 <link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 
 
@@ -115,7 +117,10 @@ Example:
     </template>
 
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
-      <h1>Toon detail van <span>{{selected}}</span> in validation mode</h1>
+      <div class="total">
+        <h1><span>{{selected}}</span> bevestig?</h1>
+         <locals-confirm on-confirm="addValidation" on-cancel="backList">Valideren?</locals-confirm>
+      </div>
     </template>
 
   </template>
@@ -140,6 +145,14 @@ Example:
       },
       progress: {
         type: Number
+      },
+      contractaddr: {
+        type: String,
+        value: ''
+      },
+      contractabi: {
+        type: Object,
+        value: '[ { "constant": false, "inputs": [], "name": "kill", "outputs": [], "type": "function" }, { "constant": false, "inputs": [ { "name": "_localsuser", "type": "address" }, { "name": "_hash", "type": "string" } ], "name": "addVerification", "outputs": [], "type": "function" }, { "constant": true, "inputs": [], "name": "owner", "outputs": [ { "name": "", "type": "address", "value": "0x7cbfd3ca2f652e8d033ad2374090c09cd24a85d0" } ], "type": "function" }, { "constant": true, "inputs": [ { "name": "", "type": "address" } ], "name": "users", "outputs": [ { "name": "username", "type": "string", "value": "" }, { "name": "ipfshash", "type": "string", "value": "" }, { "name": "numVerifications", "type": "uint256", "value": "0" } ], "type": "function" }, { "constant": true, "inputs": [], "name": "tokenaddr", "outputs": [ { "name": "", "type": "address", "value": "0xa69153562474b1dff2ab79b7fdb75d55f659ea56" } ], "type": "function" }, { "constant": true, "inputs": [], "name": "verificationthresh", "outputs": [ { "name": "", "type": "uint256", "value": "2" } ], "type": "function" }, { "constant": true, "inputs": [], "name": "token", "outputs": [ { "name": "", "type": "address", "value": "0x0000000000000000000000000000000000000000" } ], "type": "function" }, { "inputs": [ { "name": "_verificationthresh", "type": "uint256", "index": 0, "typeShort": "uint", "bits": "256", "displayName": "&thinsp;<span class=\"punctuation\">_</span>&thinsp;verificationthresh", "template": "elements_input_uint", "value": "2" }, { "name": "token", "type": "address", "index": 1, "typeShort": "address", "bits": "", "displayName": "token", "template": "elements_input_address", "value": "0xa69153562474B1dFf2ab79b7fdB75d55f659Ea56" } ], "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "_from", "type": "address" }, { "indexed": false, "name": "_to", "type": "address" }, { "indexed": false, "name": "_numverifications", "type": "uint256" } ], "name": "ValidationAdded", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "_from", "type": "address" }, { "indexed": false, "name": "_username", "type": "string" }, { "indexed": false, "name": "_ipfshash", "type": "string" }, { "indexed": false, "name": "_numverifications", "type": "uint256" } ], "name": "UserAdded", "type": "event" } ]'
       }
     },
 
@@ -155,15 +168,33 @@ Example:
 
     attached: function() {
       //debugger;
-      this.visualmode = this.mode || 'list';     
+      this.visualmode = 'detail';
+
+      //this.visualmode = this.mode || 'list';     
       console.log('locals-verification-validator topic is',this.topic);
+
     },
 
     detached: function() {
+
+    },
+
+    toHome:function(){
+      this.fire('to-home');
     },
 
     goDetail: function(){
-            this.visualmode = 'detail';
+      this.visualmode = 'detail';
+    },
+
+    backList: function(){
+      this.visualmode = 'list';
+    },
+
+    addValidation: function(){
+      console.log('laat ons da eens naar een smart contract sturen');
+      console.log('ik heb de user zijn account: ',this.fixaddress(this.account));
+      
     },
 
     object2array: function(input){
@@ -178,9 +209,7 @@ Example:
       return newarray;
     },
 
-    toHome:function(){
-      this.fire('to-home');
-    },
+   
 
     _sizeview: function(){
       switch(this.sizeview) {
@@ -283,6 +312,18 @@ Example:
         };
 
       },
+
+      fixaddress: function(address) {
+        function strStartsWith(str, prefix) {
+          return str.indexOf(prefix) === 0;
+        }
+
+        if (!strStartsWith(address, '0x')) {
+          return ('0x' + address);
+        }
+        return address;
+      }
+
 
   });
 </script>
