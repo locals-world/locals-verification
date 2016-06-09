@@ -190,6 +190,7 @@ Example:
       var self = this;
 
       console.log('ik heb de user zijn account: ',this.fixaddress(this.account));
+      var otheruser = this.fixaddress(this.validations[this.selected].avatardata.account);
 
       this.contracturl = this.resolveUrl('../../contracts/localsAvatar.json');
       this.importHref(this.contracturl, function(e) {
@@ -201,7 +202,7 @@ Example:
           var MyContract = self.web3.eth.contract(self.contractjson.abi);
           var myContractInstance = MyContract.at(self.contractaddr);
 
-          var otheruser = '0xfd5A58b4a5490A1A5928d08c4B9738877B97fFE9';// 'daisy'
+          //var otheruser = '0xfd5A58b4a5490A1A5928d08c4B9738877B97fFE9';// 'daisy'
           var hash = 'sha3hash';
 
           result = myContractInstance.addVerification.sendTransaction(otheruser, hash, {

@@ -92,15 +92,15 @@ Example:
     },
 
     attached: function() {
-       this.whisper = document.querySelector('locals-whisperer');
-       if (!this.whisper){
-          console.err('locals-verification-handler should have a whisper component');
-       }
-       this.whisper.addEventListener('msg-received', function(e) {
-          this.processMsg(e);
-       }.bind(this));
-
-    
+      this.whisper = document.querySelector('locals-whisperer');
+      
+      if (!this.whisper){
+        console.error('locals-verification-handler should find a whisper component');
+      }
+      this.whisper.addEventListener('msg-received', function(e) {
+        this.processMsg(e);
+      }.bind(this));
+          
     },
 
     detached: function() {

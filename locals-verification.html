@@ -50,11 +50,9 @@ Example:
     is: 'locals-verification',
 
     properties: {
-
       objectdata: {
         type: Object
       }
-
     },
 
     // Element Lifecycle
@@ -75,6 +73,10 @@ Example:
 
     attached: function() {
 
+      this.web3 = document.querySelector('web3-wallet');
+      if (!this.web3){
+        console.error('locals-verification should find a web3-wallet component');
+      }
       var whisper = document.querySelector('locals-whisperer');
       var self = this;
       whisper.addEventListener('msg-received', function(e) {
@@ -83,8 +85,6 @@ Example:
         var input = e.detail.payload;
         switch (input.command) {
           case "sendaeskey":
-
-
 
             // Received an EAS key encrypted with our public key
             var privkey = self.verifications[input.from].privkey;
@@ -95,6 +95,8 @@ Example:
             var passPhrase = crypt.decrypt(input.data);
 
             console.log('locals-verification: step 3 decrypt AES key', input.data, '=>',passPhrase);
+
+            self.objectdata.account = self.web3.account;
 
             var objectdataString = JSON.stringify(self.objectdata);
 
