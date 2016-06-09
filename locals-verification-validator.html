@@ -86,7 +86,6 @@ Example:
 
     </style>
 
-
     <iron-localstorage 
       name="locals-validations" 
       value="{{validations}}"></iron-localstorage>
@@ -99,14 +98,15 @@ Example:
     <div class="total">
         <div class="topbar">
           <p class="flex"></p>
-          <!-- <locals-button class$="{{btnclass}} homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button> -->
           <locals-button class="exit homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button>
         </div>
 
-      <h1>Jouw code is {{topic}} <locals-progress round value="{{progress}}" max="100" size="20"></locals-progress></h1>
-      <p>je hebt nog geen validaties</p>
-      <template is="dom-repeat" items="{{validations}}">
-        <div>Validation {{item.channel}} {{item.avatardata.firstname}}</div>
+        <h1>Jouw code is <span>{{topic}}</span> <locals-progress round value="{{progress}}" max="100" size="20"></locals-progress></h1>
+      <template is="dom-if" if="{{!validations}}">
+        <p>je hebt nog geen validaties</p>
+      </template>
+      <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
+        <div>Validation {{item._key}} {{item.avatardata.firstname}}</div>
       </template>
     </div>
     </template>
@@ -131,20 +131,44 @@ Example:
       },
       mode: {
         type: String,
+      },
+      topic: {
+        type: String
+      },
+      progress: {
+        type: Number
       }
     },
 
     // Element Lifecycle
 
     ready: function() {
+
+      //this.utilz = this.$.util;
+
+      //debugger;
+      //this.$.util.object2array({a:1});
     },
 
     attached: function() {
       //debugger;
       this.visualmode = this.mode || 'list';     
+      console.log('locals-verification-validator topic is',this.topic);
     },
 
     detached: function() {
+    },
+
+    object2array: function(input){
+      var newarray = [];
+      var p = input;
+      for (var key in p) {
+        if (p.hasOwnProperty(key)) {
+          p[key]._key = key;
+          newarray.push(p[key]);
+        }
+      };
+      return newarray;
     },
 
     toHome:function(){
