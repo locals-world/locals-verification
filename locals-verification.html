@@ -1,6 +1,7 @@
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../locals-input/locals-input.html">
+<link rel="import" href="../locals-style/locals-style.html">
 
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
@@ -20,17 +21,78 @@ Example:
       :host {
         display: block;
         box-sizing: border-box;
-      }    
+      }
+
+      .total {
+        width: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+        box-sizing: border-box; 
+        padding: 40px 0px 80px 0px;
+        background-color: var(--locals-blue);       
+      }
+
+      .pincanvas {
+        width: 80%;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+        box-sizing: border-box; 
+        padding: 20px 0px 20px 0px;
+      }
+
+      h1 {
+        @apply(--locals-font-h1);
+        color:var(--locals-blue);
+        font-size: 24px;
+      }
+
+      p {
+        @apply(--locals-font-body1);
+      }
+
+      .valids {
+        box-sizing: border-box;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+      }
+
+      .valids p {
+        font-size: 18px;
+        @apply(--opensans-bold);
+        color: white;
+        margin: 0px 5px 0px 0px; 
+      }
+
+      .addbtn {
+        margin-top: 20px;
+      }
+
+      .submitbtn {
+        margin-top: 10px;
+      }
+
+
+
     </style>
+    <div class="total">
     <template is="dom-if" if="{{_is(mode,'view')}}">
-      <p>je hebt nog geen validaties</p>
-      <locals-button icon="plus" on-tap="addVerification"></locals-button>
+      <div class="valids">
+        <p>22</p>
+        <locals-icon icon="v" iconcolor="white" small></locals-icon>
+      </div>
+      <locals-button class="addbtn" icon="addval" on-tap="addVerification" bgrgba="0,0,0,0.05" txtcolor="darkgrey"></locals-button>
     </template>
 
-    <template is="dom-if" if="{{_is(mode,'start')}}">
-      <h1>Vraag een code aan een gevalideerd locals-avatar</h1>
-      <locals-input bind-value="{{pincode}}"></locals-input>
-      <locals-button on-tap="requestValidation">submit</locals-button>
+    <template is="dom-if" if="{{_is(mode,'code')}}">
+      <div class="valids" on-tap="toView">
+        <p>22</p>
+        <locals-icon icon="v" iconcolor="white" small></locals-icon>
+      </div>
+      <div class="pincanvas">
+        <locals-input bind-value="{{pincode}}" label="Pincode" center></locals-input>
+<!--         <locals-button on-tap="toView" bgrgba="0,0,0,0.05" icon="decline" class="submitbtn" small></locals-button> -->
+        <locals-button on-tap="requestValidation" bgrgba="0,0,0,0.05" icon="arrowright" class="submitbtn" small></locals-button>
+    </div>
     </template>
 
     <template is="dom-if" if="{{_is(mode,'waiting')}}">
@@ -39,7 +101,7 @@ Example:
       <!-- TODO: Maak hier een tellerke dat aftelt -->
     </template>
 
-
+    </div>
   </template>
 
 </dom-module>
@@ -122,11 +184,22 @@ Example:
     },
 
     addVerification: function() {
-      this.mode = 'start';
+      // this.fire('start');
+      this.mode = 'code';
+
+    },
+
+    toView: function() {
+      this.mode = 'view';
+
+    },
+
+    toCode: function() {
+      this.mode = 'code';
     },
 
     cancel: function() {
-      this.mode = 'start';
+      this.mode = 'code';
 
     },
 

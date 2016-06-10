@@ -31,20 +31,24 @@ Example:
     box-sizing: border-box;
     margin-right: 10px;
   } 
+  p {
+    @apply(--locals-font-body1);    
+  }
 
   .vals {
-    width: 45px;
-    height: 45px;
+    width: 38px;
+    height: 38px;
     border-radius:50%;
-    background-color: var(--locals-darkgrey);
+    background-color: rgba(0,0,0,0.05);
     @apply(--layout-horizontal);
     @apply(--layout-center-center);
+    box-sizing: border-box;
   }
-  p {
-    @apply(--locals-font-body1);
-    @apply(--opensans-semibold);
-    color: white;        
-  }
+  .vals p {
+    @apply(--opensans-bold);
+    color: var(--locals-blue);
+/*    font-size: 15px;    
+*/  }
 
   </style>
     <iron-localstorage 
@@ -54,7 +58,7 @@ Example:
 
 
     <template is="dom-if" if="{{novals}}">
-      <locals-button class="valbtn" icon="addval" small></locals-button>
+      <locals-button class="valbtn" icon="verify" small bgrgba="0,0,0,0.05"></locals-button>
     </template>
     <template is="dom-if" if="{{!novals}}">
       <div class="vals">
@@ -104,7 +108,7 @@ Example:
 
     ready: function() {
       console.log('locals-verification-handler => ready');
-      this.vals = 1;
+      this.vals = 7;
     },
 
     attached: function() {
