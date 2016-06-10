@@ -31,6 +31,21 @@ Example:
     box-sizing: border-box;
     margin-right: 10px;
   } 
+
+  .vals {
+    width: 45px;
+    height: 45px;
+    border-radius:50%;
+    background-color: var(--locals-darkgrey);
+    @apply(--layout-horizontal);
+    @apply(--layout-center-center);
+  }
+  p {
+    @apply(--locals-font-body1);
+    @apply(--opensans-semibold);
+    color: white;        
+  }
+
   </style>
     <iron-localstorage 
       name="locals-validations" 
@@ -89,6 +104,7 @@ Example:
 
     ready: function() {
       console.log('locals-verification-handler => ready');
+      this.vals = 1;
     },
 
     attached: function() {
@@ -109,6 +125,16 @@ Example:
 
     lsl: function(){
       console.log('iron-localstorage-load!');
+    },
+
+
+    _vals: function() {
+
+      if(this.vals > 0){
+        this.novals = false;
+      console.log(this.vals);
+
+      }
     },
 
     toHome:function(){
