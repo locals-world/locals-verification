@@ -50,6 +50,10 @@ Example:
 /*    font-size: 15px;    
 */  }
 
+  .valbtn {
+    opacity: 0.5;
+  }
+
   </style>
     <iron-localstorage 
       name="locals-validations" 
@@ -57,14 +61,14 @@ Example:
     ></iron-localstorage>
 
 
-    <template is="dom-if" if="{{novals}}">
+    <template is="dom-if" if="{{!novals}}">
       <locals-button class="valbtn" icon="verify" small bgrgba="0,0,0,0.05"></locals-button>
     </template>
-    <template is="dom-if" if="{{!novals}}">
+<!--     <template is="dom-if" if="{{!novals}}">
       <div class="vals">
         <p>{{vals}}</p>
       </div>
-    </template>
+    </template> -->
 
 
   </template>

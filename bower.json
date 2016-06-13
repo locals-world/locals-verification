@@ -25,7 +25,9 @@
     "locals-input": "https://github.com/locals-world/locals-input.git",
     "locals-button": "https://github.com/locals-world/locals-button.git",
     "locals-style": "https://github.com/locals-world/locals-style.git",
-    "locals-whisperer": "https://github.com/locals-world/locals-whisperer.git"
+    "locals-whisperer": "https://github.com/locals-world/locals-whisperer.git",
+    "iron-collapse": "^1.1.0",
+    "locals-loader": "https://github.com/locals-world/locals-loader.git"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

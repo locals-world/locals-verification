@@ -1,7 +1,10 @@
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../locals-input/locals-input.html">
+<link rel="import" href="../locals-loader/locals-loader.html">
+
 <link rel="import" href="../locals-style/locals-style.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
 
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
@@ -28,16 +31,21 @@ Example:
         @apply(--layout-vertical);
         @apply(--layout-center-center);
         box-sizing: border-box; 
-        padding: 40px 0px 80px 0px;
-        background-color: var(--locals-blue);       
+        padding: 30px 0px 30px 0px;
+        /*background-color: var(--locals-whit); */      
       }
-
-      .pincanvas {
-        width: 80%;
+      .valcanvas {
+        width: 100%;
+        box-sizing: border-box; 
+        padding: 0px;
+        /*background-color: rgba(0,0,0,0.05);*/
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+      .pin {
+        width: 70%;
         @apply(--layout-vertical);
         @apply(--layout-center-center);
-        box-sizing: border-box; 
-        padding: 20px 0px 20px 0px;
       }
 
       h1 {
@@ -50,54 +58,56 @@ Example:
         @apply(--locals-font-body1);
       }
 
-      .valids {
-        box-sizing: border-box;
-        @apply(--layout-horizontal);
-        @apply(--layout-center-center);
-      }
 
-      .valids p {
-        font-size: 18px;
-        @apply(--opensans-bold);
-        color: white;
-        margin: 0px 5px 0px 0px; 
-      }
 
       .addbtn {
         margin-top: 20px;
       }
 
       .submitbtn {
-        margin-top: 10px;
+        margin-top: 15px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
       }
 
+      .closecollapse {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+        margin-bottom: 10px;
+      }
 
+      .tussenschot {
+        width: 100%;
+        
+        border: 0;
+        margin: 0px;
+        color: var(--locals-grey3);
+        background-color: var(--locals-grey2);
+        height: 1px;
+      }
+
+      .whitespace {
+        height: 20px;
+      }
 
     </style>
     <div class="total">
-    <template is="dom-if" if="{{_is(mode,'view')}}">
-      <div class="valids">
-        <p>22</p>
-        <locals-icon icon="v" iconcolor="white" small></locals-icon>
-      </div>
-      <locals-button class="addbtn" icon="addval" on-tap="addVerification" bgrgba="0,0,0,0.05" txtcolor="darkgrey"></locals-button>
-    </template>
-
-    <template is="dom-if" if="{{_is(mode,'code')}}">
-      <div class="valids" on-tap="toView">
-        <p>22</p>
-        <locals-icon icon="v" iconcolor="white" small></locals-icon>
-      </div>
-      <div class="pincanvas">
-        <locals-input bind-value="{{pincode}}" label="Pincode" center></locals-input>
-<!--         <locals-button on-tap="toView" bgrgba="0,0,0,0.05" icon="decline" class="submitbtn" small></locals-button> -->
-        <locals-button on-tap="requestValidation" bgrgba="0,0,0,0.05" icon="arrowright" class="submitbtn" small></locals-button>
+    <div class="valcanvas">
+      <template is="dom-if" if="{{_is(mode,'view')}}">
+        <div class="pin"> 
+          <locals-input autofocus bind-value="{{pincode}}" label="Pincode" center></locals-input>
+          <locals-confirm on-confirm="toWaiting"></locals-confirm>
+        </div>
+      </template>
     </div>
-    </template>
-
     <template is="dom-if" if="{{_is(mode,'waiting')}}">
-      <h1>Nu wachten op de partner</h1>
-      <locals-button on-tap="cancel">cancel</locals-button>
+      <locals-loader small>Waiting for validator</locals-loader>
+      <div class="whitespace"></div>
+      <locals-button icon="declinenew" on-tap="cancel" confirmsmall bg="grey1" small></locals-button>
+      <!-- <locals-button on-tap="cancel">cancel</locals-button> -->
       <!-- TODO: Maak hier een tellerke dat aftelt -->
     </template>
 
@@ -186,21 +196,27 @@ Example:
     addVerification: function() {
       // this.fire('start');
       this.mode = 'code';
+      this.toggleval();
+    },
 
+    toggleval: function() {
+      this.$.valscollapse.toggle();
     },
 
     toView: function() {
       this.mode = 'view';
-
     },
 
-    toCode: function() {
-      this.mode = 'code';
+
+
+    toWaiting: function() {
+      this.mode = 'waiting';
     },
 
     cancel: function() {
-      this.mode = 'code';
-
+      // this.toggleval();
+      this.mode = 'view';
+      this.fire('cancel');
     },
 
     requestValidation: function() {
