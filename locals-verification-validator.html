@@ -106,17 +106,18 @@ Example:
       <template is="dom-if" if="{{!validations}}">
         <p>je hebt nog geen validaties</p>
       </template>
-      <iron-selector attr-for-selected="key" selected="{{selected}}" on-iron-select="goDetail">
+      <!-- <iron-selector attr-for-selected="key" selected="{{selected}}" on-iron-select="goDetail"> -->
         <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
-          <div key="{{item._key}}">Validation {{item._key}} {{item.avatardata.firstname}} - {{item.avatardata.lastname}}</div>
+          <div on-tap="goDetail" data-args="{{item._key}}" key="{{item._key}}">Validation {{item._key}} {{item.avatardata.firstname}} - {{item.avatardata.lastname}}</div>
         </template>
-      </iron-selector>
+      <!-- </iron-selector> -->
     </div>
     </template>
 
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
       <div class="total">
-        <h1><span>{{selected}}</span> bevestig?</h1>
+        <h1><span>{{selected}}</span> bevestigen?</h1>
+         <span>{{selectedobject.firstname}}</span>
          <locals-confirm on-confirm="addValidation" on-cancel="backList">Valideren?</locals-confirm>
          <span>{{transactionHash}}</span>
       </div>
@@ -153,6 +154,12 @@ Example:
 
     // Element Lifecycle
 
+    _getobject: function(selected){
+      
+//      console.log('selected = ',this.validations[selected]);
+//      return this.validations[selected].avatardata;
+    },
+
     ready: function() {
 
       //this.utilz = this.$.util;
@@ -162,7 +169,7 @@ Example:
     },
 
     attached: function() {
-      this.visualmode = 'detail';    
+      this.visualmode = 'list';    
       console.log('locals-verification-validator topic is', this.topic);
     },
 
@@ -174,7 +181,11 @@ Example:
       this.fire('to-home');
     },
 
-    goDetail: function() {
+    goDetail: function(e) {
+
+      this.selected = e.target.getAttribute('data-args');
+
+      this.selectedobject = this.validations[this.selected].avatardata;
       this.visualmode = 'detail';
     },
 
