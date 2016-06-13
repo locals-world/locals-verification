@@ -101,7 +101,21 @@ Example:
         value: true
       },
 
+      contractaddr: {
+        type: String,
+        value: '0xD03B921AcF364cf8e240aEd920a539C53FF988CC'
+      },
 
+      datahash: {
+        type: String,
+        value: 'adam',
+        observer: '_checkValidation'
+      },
+
+      nrofval: {
+        type: Number,
+        notify: true
+      }
 
     },
 
@@ -113,13 +127,21 @@ Example:
     },
 
     attached: function() {
+
       this.whisper = document.querySelector('locals-whisperer');
+      this.web3 = document.querySelector('web3-wallet');
       
       if (!this.whisper){
         console.error('locals-verification-handler should find a whisper component');
       }
       this.whisper.addEventListener('msg-received', function(e) {
         this.processMsg(e);
+      }.bind(this));
+
+      this.web3.addEventListener('web3-ready', function(e) {
+        this.checkValidation(e);
+        
+        //console.log('anything?', this.account, this.web3);
       }.bind(this));
           
     },
@@ -152,6 +174,33 @@ Example:
       this.fire('to-home');
     },
 
+    checkValidation: function(e) {
+      this.web3 = e.srcElement.web3;
+      this.account = e.srcElement.account;
+      this.account = this.fixaddress(this.account);
+      
+      if (this.web3 && this.account) {
+        // Get the hash and nr of validations from the contract.
+        var self = this;
+        this.contracturl = this.resolveUrl('../../contracts/localsTruth.json');
+        this.importHref(this.contracturl, function(e) {
+          self.contractjson = JSON.parse(e.target.import.body.innerText);
+          console.log(self.contractjson);
+          var myclipContract = this.web3.eth.contract(self.contractjson.abi);
+          var myclipContractInstance = myclipContract.at(self.contractaddr);
+
+          self.nrofval = myclipContractInstance.checkVeracity.call(self.datahash).toNumber();
+
+          // And the setup a filter that keeps on listening.
+          // this.filter = this.web3.eth.filter('latest').watch(function() {
+          //   this.ethbalance = this.web3.eth.getBalance(this.account).toNumber();
+
+          // }.bind(this));
+        });
+
+      }
+    },
+
     _sizeview: function(){
       switch(this.sizeview) {
         case 'phone':
@@ -175,7 +224,18 @@ Example:
         b = true;
       }     
       return a === b;
-    }    ,
+    },
+
+    fixaddress: function(address) {
+      function strStartsWith(str, prefix) {
+        return str.indexOf(prefix) === 0;
+      }
+
+      if (!strStartsWith(address, '0x')) {
+        return ('0x' + address);
+      }
+      return address;
+    },
 
 
 
@@ -269,6 +329,8 @@ Example:
         };
 
       },
+
+      
 
   });
 </script>
