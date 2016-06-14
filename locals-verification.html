@@ -99,7 +99,7 @@ Example:
       <template is="dom-if" if="{{_is(mode,'view')}}">
         <div class="pin"> 
           <locals-input autofocus bind-value="{{pincode}}" label="Pincode" center></locals-input>
-          <locals-confirm on-confirm="toWaiting"></locals-confirm>
+          <locals-confirm on-confirm="toWaiting" type="next"></locals-confirm>
         </div>
       </template>
     </div>
