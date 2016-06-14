@@ -348,6 +348,9 @@ Example:
             console.err('locals-verification-validator: failed to decode avatar data',e);
           }
 
+          // close the custom channel
+          this.whisper.closechannel(this.currentchannel);
+
           break;
 
         default:
