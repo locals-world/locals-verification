@@ -24,6 +24,8 @@ Example:
       :host {
         display: block;
         box-sizing: border-box;
+        background-color: var(--locals-grey1);
+
       }
       .valbtn {
         margin-right: 10px; 
@@ -40,9 +42,10 @@ Example:
 
       .total {
         width: 100vw;
-        height: 100vh;
+        min-height: 100vh;
+
         @apply(--layout-vertical);
-        background-color: var(--locals-grey1);
+        @apply(--layout-center);
       }
 
       .topbar {
@@ -53,6 +56,7 @@ Example:
         @apply(--layout-center);
         box-sizing: border-box;
         padding: 10px 20px 10px 10px;
+        margin-bottom: 4vh;
         }
 
       .flex {
@@ -82,7 +86,43 @@ Example:
 
       .code {
         @apply(--opensans-semibold);
-        line-height: 34px;
+        line-height: 30px;
+        color: var(--locals-blue);
+      }
+
+      .whitespace {
+        height: 4vh;
+      }
+
+      .tussenschot {
+        width: 100%;
+        max-width: 900px;
+        border: 0;
+        margin: 0px;
+        color: var(--locals-grey3);
+        background-color: var(--locals-grey2);
+        height: 1px;
+      }
+
+
+      .detailinlist {
+        width: 100%;
+        max-width: 900px;
+        box-sizing: border-box;
+        padding: 20px;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-center);        
+      }
+
+      .detailinlist:hover {
+/*        background-color: white;*/
+        cursor: pointer;
+        @apply(--opensans-bold);       
+      }
+
+      .detailinlist p {
+        @apply(--layout-flex);
       }
 
     </style>
@@ -93,11 +133,9 @@ Example:
       on-iron-localstorage-load-empty="_initvalidations"
       ></iron-localstorage>
 
-    <template is="dom-if" if="{{_is(visualmode,'button')}}">
+<!--     <template is="dom-if" if="{{_is(visualmode,'button')}}">
     <locals-button class="valbtn" icon="addval" small></locals-button>
-    
-    
-    </template>
+    </template> -->
 
     <template is="dom-if" if="{{_is(visualmode,'list')}}">
     <div class="total">
@@ -107,18 +145,30 @@ Example:
         </div>
 
         <h1>Jouw code is</h1>
-        <h1 class="code"><span>{{topic}}</span>
-        </h1>
-        <small><span>{{progress}}</span></small>
-      <template is="dom-if" if="{{!validations}}">
-        <p>je hebt nog geen validaties</p>
-      </template>
-      <!-- <iron-selector attr-for-selected="key" selected="{{selected}}" on-iron-select="goDetail"> -->
-        <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
-          <div on-tap="goDetail" data-args="{{item._key}}" key="{{item._key}}">Validation {{item._key}} {{item.avatardata.firstname}} - {{item.avatardata.lastname}}</div>
+        <h1 class="code"><span>{{topic}}</span></h1>
+
+        <div class="whitespace"></div>
+        <div class="tussenschot"></div>
+        <template is="dom-if" if="{{!validations}}">
+        <div class="whitespace"></div>
+
+          <p>je hebt nog geen validaties</p>
         </template>
-      <!-- </iron-selector> -->
+
+        <template is="dom-if" if="{{validations}}">
+<!--           <p>je hebt nog geen validaties</p> -->
+          <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
+            <div on-tap="goDetail" data-args="{{item._key}}" key="{{item._key}}" class="detailinlist">
+              <p>{{item.avatardata.firstname}} {{item.avatardata.lastname}}</p>
+              <locals-button icon="arrowright" small></locals-button>
+            </div>
+            <div class="tussenschot"></div>
+          </template>
+        </template>
+
     </div>
+
+
     </template>
 
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
