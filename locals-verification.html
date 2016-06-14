@@ -124,6 +124,10 @@ Example:
     properties: {
       objectdata: {
         type: Object
+      },
+      listening: {
+        type: Boolean,
+        value: false
       }
     },
 
@@ -143,10 +147,12 @@ Example:
 
     },
 
-    attached: function() {
+  attached: function() {
 
+    if (this.listening) {
+      console.log('locals-verification : listening');
       this.web3 = document.querySelector('web3-wallet');
-      if (!this.web3){
+      if (!this.web3) {
         console.error('locals-verification should find a web3-wallet component');
       }
       var whisper = document.querySelector('locals-whisperer');
@@ -154,19 +160,25 @@ Example:
       whisper.addEventListener('msg-received', function(e) {
 
         console.log('locals-verification MSG receieved', e.detail);
+
+        if (this.currentchannel !== e.detail.topic) {
+          console.log('not for me', this.currentchannel, e.detail.topic);
+          return;
+        }
+
         var input = e.detail.payload;
         switch (input.command) {
           case "sendaeskey":
 
             // Received an EAS key encrypted with our public key
-            var privkey = self.verifications[input.from].privkey;
-            var crypt = new JSEncrypt({
-              default_key_size: 512
-            });
-            crypt.setPrivateKey(privkey);
-            var passPhrase = crypt.decrypt(input.data);
+            // var privkey = self.verifications[input.from].privkey;
+            // var crypt = new JSEncrypt({
+            //   default_key_size: 512
+            // });
+            // crypt.setPrivateKey(privkey);
+            var passPhrase = this.crypt.decrypt(input.data);
 
-            console.log('locals-verification: step 3 decrypt AES key', input.data, '=>',passPhrase);
+            console.log('locals-verification: step 3 decrypt AES key', input.data, '=>', passPhrase);
 
             self.objectdata.account = self.web3.account;
 
@@ -175,20 +187,23 @@ Example:
             // passphrase is now the other side's EAS key to encrypt our data
             var encrypted_objectdata = CryptoJS.AES.encrypt(objectdataString, passPhrase).toString();
 
-            console.log('locals-verification: step 3.1 encrypt avatar object', objectdataString, '=>',encrypted_objectdata);
+            console.log('locals-verification: step 3.1 encrypt avatar object', objectdataString, '=>', encrypted_objectdata);
 
             // send encrypted data to other side
             var whisper = document.querySelector('locals-whisperer');
             whisper.whisperpost(input.from, JSON.stringify({
               'command': 'senduserdata',
-              'from': whisper.topic.toString(),
+              'from': this.currentchannel,
               'data': encrypted_objectdata
             }));
 
 
         }
-      });
-    },
+      }.bind(this));
+    }else{
+      console.log('locals-verification : not listening');
+    }
+  },
 
     detached: function() {
     },
@@ -210,6 +225,7 @@ Example:
 
 
     toWaiting: function() {
+      this.requestValidation();
       this.mode = 'waiting';
     },
 
@@ -225,22 +241,26 @@ Example:
 
       var whisper = document.querySelector('locals-whisperer');
 
-      var crypt = new JSEncrypt({
+      this.crypt = new JSEncrypt({
         default_key_size: 512
       });
 
-      this.verifications[this.pincode] = {
-        pubkey: crypt.getPublicKey(),
-        privkey: crypt.getPrivateKey()
-      };
+      // this.verifications[this.pincode] = {
+      //   pubkey: crypt.getPublicKey(),
+      //   privkey: crypt.getPrivateKey()
+      // };
+
+      // create new channel
+      this.currentchannel = whisper.openchannel();
+      console.log('My new channel is',this.currentchannel);
 
       console.log('locals-whisperer: step 1 : send senduserrequest (pubkey) to channel ',this.pincode);
 
       whisper.whisperpost(this.pincode, JSON.stringify({
         'command': 'senduserrequest',
-        'from': whisper.topic.toString(),
+        'from': this.currentchannel,
         'data': {
-          'pubkey': this.verifications[this.pincode].pubkey
+          'pubkey': this.crypt.getPublicKey()
         }
       }));
 
