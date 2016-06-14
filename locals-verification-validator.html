@@ -158,7 +158,7 @@ Example:
         <template is="dom-if" if="{{validations}}">
 <!--           <p>je hebt nog geen validaties</p> -->
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
-            <div on-tap="goDetail" data-args="{{item._key}}" key="{{item._key}}" class="detailinlist">
+            <div on-tap="goDetail" class="detailinlist">
               <p>{{item.avatardata.firstname}} {{item.avatardata.lastname}}</p>
               <locals-button icon="arrowright" small></locals-button>
             </div>
@@ -255,7 +255,7 @@ Example:
 
     goDetail: function(e) {
 
-      this.selected = e.target.getAttribute('data-args');
+      this.selected = e.model.item._key;
 
       this.selectedobject = this.validations[this.selected].avatardata;
       this.visualmode = 'detail';
