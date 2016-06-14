@@ -84,7 +84,9 @@ Example:
 
     <iron-localstorage 
       name="locals-validations" 
-      value="{{validations}}"></iron-localstorage>
+      value="{{validations}}"
+      on-iron-localstorage-load-empty="_initvalidations"
+      ></iron-localstorage>
 
     <template is="dom-if" if="{{_is(visualmode,'button')}}">
     <locals-button class="valbtn" icon="addval" small></locals-button>
@@ -160,6 +162,10 @@ Example:
 //      return this.validations[selected].avatardata;
     },
 
+    _initvalidations: function(){
+      this.validations = {};
+    },
+
     ready: function() {
 
       //this.utilz = this.$.util;
@@ -171,6 +177,17 @@ Example:
     attached: function() {
       this.visualmode = 'list';    
       console.log('locals-verification-validator topic is', this.topic);
+
+      this.whisper = document.querySelector('locals-whisperer');
+      
+      if (!this.whisper){
+        console.error('locals-verification-validator should find a whisper component');
+      }
+      this.whisper.addEventListener('msg-received', function(e) {
+        this.processMsg(e);
+      }.bind(this));
+
+
     },
 
     detached: function() {
@@ -278,13 +295,19 @@ Example:
 
 
     processMsg: function(e) {
+      //debugger;
       console.log('incoming whisper msg: ', e.detail);
 
-      var input = JSON.parse(e.detail.input)
+      var input = e.detail.payload;
 
       switch (input.command) {
+        // this is the broadcast channel
         case "senduserrequest":
           console.log('create AES key and send it to other party', input.data);
+
+          // create new channel
+          this.currentchannel = whisper.openchannel();
+          console.log('My new channel is',this.currentchannel);
 
           var crypt = new JSEncrypt({
             default_key_size: 512
@@ -299,14 +322,19 @@ Example:
 
           var encryptedkey = crypt.encrypt(aeskey);
 
-          this.$.whisper.whisperpost(input.from, JSON.stringify({
+          this.whisper.whisperpost(input.from, JSON.stringify({
             command: 'sendaeskey',
-            from: this.$.whisper.topic,
+            from: this.currentchannel,
             data: encryptedkey
           }));
 
           break;
         case "senduserdata":
+
+          if (this.currentchannel !== e.detail.topic){
+            console.log('not for me',this.currentchannel,e.detail.topic);
+            break;
+          }
 
           var easKey = this.validations[input.from].easkey;
 
@@ -315,7 +343,7 @@ Example:
 
           try{
             decryptedAvatarJson = JSON.parse(decryptedAvatar);
-            this.set('this.validations.' + input.from + '.avatardata',decryptedAvatarJson);
+            this.set('validations.' + input.from + '.avatardata',decryptedAvatarJson);
           }catch(e){
             console.err('locals-verification-validator: failed to decode avatar data',e);
           }
