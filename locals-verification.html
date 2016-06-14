@@ -147,15 +147,17 @@ Example:
 
     attached: function() {
 
+      this.whisper = document.querySelector('locals-whisperer');
+
       if (this.listening) {
         console.log('locals-verification : listening');
         this.web3 = document.querySelector('web3-wallet');
         if (!this.web3) {
           console.error('locals-verification should find a web3-wallet component');
         }
-        var whisper = document.querySelector('locals-whisperer');
+        
         var self = this;
-        whisper.addEventListener('msg-received', function(e) {
+        this.whisper.addEventListener('msg-received', function(e) {
 
           console.log('locals-verification MSG receieved', e.detail);
 
@@ -184,15 +186,15 @@ Example:
               console.log('locals-verification: step 3.1 encrypt avatar object', objectdataString, '=>', encrypted_objectdata);
 
               // send encrypted data to other side
-              var whisper = document.querySelector('locals-whisperer');
-              whisper.whisperpost(input.from, JSON.stringify({
+              //var whisper = document.querySelector('locals-whisperer');
+              this.whisper.whisperpost(input.from, JSON.stringify({
                 'command': 'senduserdata',
                 'from': this.currentchannel,
                 'data': encrypted_objectdata
               }));
 
               // close the custom channel
-              whisper.closechannel(this.currentchannel);
+              this.whisper.closechannel(this.currentchannel);
 
           }
         }.bind(this));
@@ -203,7 +205,7 @@ Example:
 
     detached: function() {
       if (this.currentchannel){
-        whisper.closechannel(this.currentchannel);
+        this.whisper.closechannel(this.currentchannel);
       }
     },
 
@@ -238,13 +240,13 @@ Example:
       });
 
       // create new channel
-      this.currentchannel = whisper.openchannel();
+      this.currentchannel = this.whisper.openchannel();
       console.log('My new channel is', this.currentchannel);
 
       console.log('locals-whisperer: step 1 : send senduserrequest (pubkey) to channel ', this.pincode);
 
-      var whisper = document.querySelector('locals-whisperer');
-      whisper.whisperpost(this.pincode, JSON.stringify({
+      //var whisper = document.querySelector('locals-whisperer');
+      this.whisper.whisperpost(this.pincode, JSON.stringify({
         'command': 'senduserrequest',
         'from': this.currentchannel,
         'data': {

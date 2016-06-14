@@ -174,9 +174,11 @@ Example:
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
       <div class="total">
         <h1><span>{{selected}}</span> bevestigen?</h1>
-         <span>{{selectedobject.firstname}}</span>
+          <locals-objectrender key="avatar" objectdata="{{selectedobject}}" renderstate="dataview" class="foo"></locals-objectrender>
          <locals-confirm on-confirm="addValidation" on-cancel="backList">Valideren?</locals-confirm>
+
          <span>{{transactionHash}}</span>
+
       </div>
     </template>
 
@@ -257,7 +259,27 @@ Example:
 
       this.selected = e.model.item._key;
 
-      this.selectedobject = this.validations[this.selected].avatardata;
+    this.selectedobject = {
+     
+        "component": {
+          "name": "locals-avatar",
+          "contract": "0x000"
+        },
+        "data": this.validations[this.selected].avatardata,
+        // "config": [
+        //   [0, 0],
+        //   [0, 0],
+        //   [0, 0],
+        //   [0, "5"],
+        //   [0, 0],
+        //   [0, 0],
+        //   [0, 0],
+        //   [0, 0],
+        //   [0, 0]
+        // ]
+      
+    };
+
       this.visualmode = 'detail';
     },
 
