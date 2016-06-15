@@ -133,9 +133,6 @@ Example:
       on-iron-localstorage-load-empty="_initvalidations"
       ></iron-localstorage>
 
-<!--     <template is="dom-if" if="{{_is(visualmode,'button')}}">
-    <locals-button class="valbtn" icon="addval" small></locals-button>
-    </template> -->
 
     <template is="dom-if" if="{{_is(visualmode,'list')}}">
     <div class="total">
@@ -164,7 +161,6 @@ Example:
             <div class="tussenschot"></div>
           </template>
         </template>
-
     </div>
 
 
@@ -243,6 +239,7 @@ Example:
         this.processMsg(e);
       }.bind(this));
 
+      this.web3 = document.querySelector('web3-wallet');
 
     },
 
@@ -287,26 +284,48 @@ Example:
     },
 
     addValidation: function() {
+      this.addValidationToContract(function(err, txhash) {
+        if (this.selected) {
+           console.log('locals-verification-validator : sending confirmation back to',this.selected); 
+          this.whisper.whisperpost(this.selected, JSON.stringify({
+            command: 'sendconfirmation',
+            from: this.currentchannel,
+            data: {
+              success: (err === null),
+              txhash: txhash
+            }
+          }));
+        } else {
+          // i should have a selected item....
+        }
+      }.bind(this));
+    },
+
+    addValidationToContract: function(cb) {
       var self = this;
 
-      console.log('ik heb de user zijn account: ',this.fixaddress(this.account));
+      console.log(this.selected);
+      debugger;
+
+      console.log('ik heb de user zijn account: ', this.fixaddress(this.web3.account));
       var otheruser = this.fixaddress(this.validations[this.selected].avatardata.account);
 
-      this.contracturl = this.resolveUrl('../../contracts/localsAvatar.json');
+      this.contracturl = this.resolveUrl('../../contracts/localsTruth.json');
       this.importHref(this.contracturl, function(e) {
         this.progress = 'addingtoindex';
         self.contractjson = JSON.parse(e.target.import.body.innerText);
-      this.web3.eth.getGasPrice(function(err, result) {
+        this.web3.eth.getGasPrice(function(err, result) {
           var gasPrice = result.toNumber(10);
-          console.log('gasprice: ', gasPrice);  
+          console.log('gasprice: ', gasPrice);
           var MyContract = self.web3.eth.contract(self.contractjson.abi);
           var myContractInstance = MyContract.at(self.contractaddr);
 
           //var otheruser = '0xfd5A58b4a5490A1A5928d08c4B9738877B97fFE9';// 'daisy'
           var hash = 'sha3hash';
+          var myhash = 'mysha3hash';
 
-          result = myContractInstance.addVerification.sendTransaction(otheruser, hash, {
-              from: self.fixaddress(self.account),
+          result = myContractInstance.addVerification.sendTransaction(otheruser, hash, myhash , {
+              from: self.fixaddress(self.web3.account),
               gasPrice: gasPrice,
               gasLimit: 3000000,
               gas: 2000000,
@@ -316,16 +335,20 @@ Example:
               if (err !== null) {
                 console.log(err);
                 console.log('ERROR: Transaction didnt go through. See console.');
+                cb(err);
               } else {
                 console.log('Transaction Successful!');
-                self.progress = 'addedtoindex';
+                //this.progress = 'addedtoindex';
                 console.log('Tx hash=', result);
                 // set vote status to TxHash received 
-                self.transactionHash = result;
+                //self.transactionHash = result;
+
+                cb(null,result);
+
               }
-            });
-        });
-    });
+            }.bind(this));
+        }.bind(this));
+      }.bind(this));
 
     },
 

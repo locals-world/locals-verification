@@ -107,8 +107,14 @@ Example:
       <locals-loader small>Waiting for validator</locals-loader>
       <div class="whitespace"></div>
       <locals-button icon="declinenew" on-tap="cancel" confirmsmall bg="grey1" small></locals-button>
-      <!-- <locals-button on-tap="cancel">cancel</locals-button> -->
-      <!-- TODO: Maak hier een tellerke dat aftelt -->
+    </template>
+
+    <template is="dom-if" if="{{_is(mode,'confirmed-by-user')}}">
+      <locals-loader small>Confirmed by validator - now waiting for confirmation on the blockchain</locals-loader>
+    </template>
+
+    <template is="dom-if" if="{{_is(mode,'confirmed-by-blockchain')}}">
+      <locals-loader small>Confirmed by blockchain</locals-loader>
     </template>
 
     </div>
@@ -118,9 +124,7 @@ Example:
 
 <script>
   Polymer({
-
     is: 'locals-verification',
-
     properties: {
       objectdata: {
         type: Object
@@ -130,59 +134,35 @@ Example:
         value: false
       }
     },
-
-    // Element Lifecycle
-
     ready: function() {
-      // `ready` is called after all elements have been configured, but
-      // propagates bottom-up. This element's children are ready, but parents
-      // are not.
-      //
-      // This is the point where you should make modifications to the DOM (when
-      // necessary), or kick off any processes the element wants to perform.
       this.mode = 'view';
       this.verifications = {};
-
     },
-
     attached: function() {
-
       this.whisper = document.querySelector('locals-whisperer');
-
       if (this.listening) {
         console.log('locals-verification : listening');
         this.web3 = document.querySelector('web3-wallet');
         if (!this.web3) {
           console.error('locals-verification should find a web3-wallet component');
         }
-        
-        var self = this;
         this.whisper.addEventListener('msg-received', function(e) {
-
           console.log('locals-verification MSG receieved', e.detail);
-
           if (this.currentchannel !== e.detail.topic) {
             console.log('not for me', this.currentchannel, e.detail.topic);
             return;
           }
-
           var input = e.detail.payload;
           switch (input.command) {
             case "sendaeskey":
-
               // We received an EAS key encrypted with our public key
-
               console.log('locals-verification: step 3 decrypt AES key', input.data, '=>', passPhrase);
-
               var passPhrase = this.crypt.decrypt(input.data);
-
-              self.objectdata.account = self.web3.account;
-
-                var objectdataString = JSON.stringify(self.objectdata);
+              this.objectdata.account = this.web3.account;
+              var objectdataString = JSON.stringify(this.objectdata);
 
               // passphrase is now the other side's EAS key to encrypt our data
               var encrypted_objectdata = CryptoJS.AES.encrypt(objectdataString, passPhrase).toString();
-
               console.log('locals-verification: step 3.1 encrypt avatar object', objectdataString, '=>', encrypted_objectdata);
 
               // send encrypted data to other side
@@ -192,60 +172,91 @@ Example:
                 'from': this.currentchannel,
                 'data': encrypted_objectdata
               }));
+              break;
+            case 'sendconfirmation':
+              this.mode = 'confirmed-by-user'
+              this.txhash = input.data.txhash;
+
+              waitTx(this.txhash,function(result){
+                this.mode = 'confirmed-by-blockchain';
+              });
 
               // close the custom channel
               this.whisper.closechannel(this.currentchannel);
-
+              break;
           }
         }.bind(this));
       } else {
         console.log('locals-verification : not listening');
       }
     },
-
+    waitTx: function(txHash, callback) {
+      /*
+       * Watch for a particular transaction hash and call the awaiting function when done;
+       * Ether-pudding uses another method, with web3.eth.getTransaction(...) and checking the txHash;
+       * on https://github.com/ConsenSys/ether-pudding/blob/master/index.js
+       */
+      var blockCounter = 15;
+      // Wait for tx to be finished
+      var filter = this.web3.eth.filter('latest').watch(function(err, blockHash) {
+        if (blockCounter <= 0) {
+          filter.stopWatching();
+          filter = null;
+          console.warn('!! Tx expired !!');
+          if (callback)
+            return callback(false);
+          else
+            return false;
+        }
+        // Get info about latest Ethereum block
+        var block = this.web3.eth.getBlock(blockHash);
+        --blockCounter;
+        // Found tx hash?
+        if (block.transactions.indexOf(txHash) > -1) {
+          // Tx is finished
+          filter.stopWatching();
+          filter = null;
+          if (callback)
+            return callback(true);
+          else
+            return true;
+          // Tx hash not found yet?
+        } else {
+          // console.log('Waiting tx..', blockCounter);
+        }
+      }.bind(this));
+    },
     detached: function() {
       if (this.currentchannel){
         this.whisper.closechannel(this.currentchannel);
       }
     },
-
     addVerification: function() {
-      // this.fire('start');
       this.mode = 'code';
       this.toggleval();
     },
-
     toggleval: function() {
       this.$.valscollapse.toggle();
     },
-
     toView: function() {
       this.mode = 'view';
     },
-
     toWaiting: function() {
       this.requestValidation();
     },
-
     cancel: function() {
       // this.toggleval();
       this.mode = 'view';
       this.fire('cancel');
     },
-
     requestValidation: function() {
-
       this.crypt = new JSEncrypt({
         default_key_size: 512
       });
-
       // create new channel
       this.currentchannel = this.whisper.openchannel();
       console.log('My new channel is', this.currentchannel);
-
       console.log('locals-whisperer: step 1 : send senduserrequest (pubkey) to channel ', this.pincode);
-
-      //var whisper = document.querySelector('locals-whisperer');
       this.whisper.whisperpost(this.pincode, JSON.stringify({
         'command': 'senduserrequest',
         'from': this.currentchannel,
@@ -253,16 +264,13 @@ Example:
           'pubkey': this.crypt.getPublicKey()
         }
       }));
-
       this.mode = 'waiting';
     },
-
     _is: function(a, b) {
       if (b === undefined) {
         b = true;
       }
       return a === b;
     }
-
   });
 </script>
