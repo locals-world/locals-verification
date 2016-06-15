@@ -163,10 +163,10 @@ Example:
       <locals-button bgrgba="0,0,0,0" id="exitbtn" icon="declinenew" on-tap="toHome"></locals-button>
     </div>
 
-    <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
+   <!--  <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation"> -->
 
-    <neon-animatable visualmode="list">
-<!--     <template is="dom-if" if="{{_is(visualmode,'list')}}"> -->
+  <!--   <neon-animatable visualmode="list"> -->
+    <template is="dom-if" if="{{_is(visualmode,'list')}}">
     <div class="total">
 
 
@@ -175,11 +175,11 @@ Example:
 
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
-        <template is="dom-if" if="{{_objectisempty(validations)}}">
+        <template is="dom-if" if="{{_objectisempty(validations,validations.*)}}">
           <div class="whitespace"></div>
           <p>je hebt nog geen validaties</p>
         </template>
-        <template is="dom-if" if="{{!_objectisempty(validations)}}">
+        <template is="dom-if" if="{{!_objectisempty(validations,validations.*)}}">
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
             <div on-tap="goDetail" class="detailinlist">
               <p>{{item.avatardata.firstname}} {{item.avatardata.lastname}}</p>
@@ -189,10 +189,11 @@ Example:
           </template>
         </template>
     </div>
-    </neon-animatable>
+  </template>
+   <!--  </neon-animatable> -->
 
-    <!-- <template is="dom-if" if="{{_is(visualmode,'detail')}}"> -->
-    <neon-animatable visualmode="detail">
+    <template is="dom-if" if="{{_is(visualmode,'detail')}}">
+   <!--  <neon-animatable visualmode="detail"> -->
       <div class="total detail">
         <div class="tussenschot"></div>
         <div class="whitespace"></div>
@@ -206,9 +207,9 @@ Example:
         <div class="tussenschot"></div>
          <!-- <span>{{transactionHash}}</span> -->
       </div>
-    </neon-animatable>
-  </neon-animated-pages>
-
+    <!-- </neon-animatable> -->
+ <!--  </neon-animated-pages> -->
+  </template>
   </template>
 
 </dom-module>
@@ -351,6 +352,11 @@ Example:
       } else {
         // i should have a selected item....
       }
+      debugger;
+      var v = this.validations;
+      delete v[this.selected] ;
+      this.validations = v;
+      this.visualmode = 'list';
       //this.set('validations.' + this.selected,null);
     },
 
