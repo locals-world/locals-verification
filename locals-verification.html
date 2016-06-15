@@ -183,7 +183,7 @@ Example:
 
               this.waitTx(this.txhash,function(result){
                 this.mode = 'confirmed-by-blockchain';
-              });
+              }.bind(this));
 
               // close the custom channel
               this.whisper.closechannel(this.currentchannel);
