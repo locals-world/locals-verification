@@ -117,6 +117,10 @@ Example:
       <locals-loader small>Confirmed by blockchain</locals-loader>
     </template>
 
+    <template is="dom-if" if="{{_is(mode,'rejected-by-blockchain')}}">
+      <locals-loader small>Rejected by user - BUMMERRRRRRRRRRRR</locals-loader>
+    </template>
+
     </div>
   </template>
 
@@ -174,13 +178,18 @@ Example:
               }));
               break;
             case 'sendconfirmation':
-              this.mode = 'confirmed-by-user'
+              this.mode = 'confirmed-by-user';
               this.txhash = input.data.txhash;
 
-              waitTx(this.txhash,function(result){
+              this.waitTx(this.txhash,function(result){
                 this.mode = 'confirmed-by-blockchain';
               });
 
+              // close the custom channel
+              this.whisper.closechannel(this.currentchannel);
+              break;
+            case 'rejectconfirmation':
+              this.mode = 'rejected-by-user';
               // close the custom channel
               this.whisper.closechannel(this.currentchannel);
               break;
