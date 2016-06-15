@@ -7,6 +7,8 @@
 <link rel="import" href="../locals-confirm/locals-confirm.html">
 <link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="locals-verification-localstorage.html">
+
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
 
@@ -158,6 +160,10 @@ Example:
 <!--     <template is="dom-if" if="{{_is(visualmode,'button')}}">
     <locals-button class="valbtn" icon="addval" small></locals-button>
     </template> -->
+
+    <locals-verification-localstorage id="lvls" data="{{validations}}">
+    </locals-verification-localstorage>
+
     <div class="topbar">
       <p class="flex"></p>
       <locals-button bgrgba="0,0,0,0" id="exitbtn" icon="declinenew" on-tap="toHome"></locals-button>
@@ -352,11 +358,10 @@ Example:
       } else {
         // i should have a selected item....
       }
-      debugger;
-      var v = this.validations;
-      delete v[this.selected] ;
-      this.validations = v;
+      //debugger;
+      delete this.validations[this.selected];
       this.visualmode = 'list';
+      this.$.lvls.save();
       //this.set('validations.' + this.selected,null);
     },
 
@@ -472,10 +477,15 @@ Example:
           crypt.setPublicKey(input.data.pubkey);
 
           var aeskey = generateKey(50);
+          if(!this.validations){
+            this.validations = {};
+          };
           this.validations[input.from] = {
             easkey: aeskey,
             pubkey: input.data.pubkey
           };
+
+          this.$.lvls.save();
 
           var encryptedkey = crypt.encrypt(aeskey);
 
@@ -495,12 +505,15 @@ Example:
 
           var easKey = this.validations[input.from].easkey;
 
+
+
           var decryptedAvatar = CryptoJS.AES.decrypt(input.data, easKey).toString(CryptoJS.enc.Utf8);
           var decryptedAvatarJson;
 
           try{
             decryptedAvatarJson = JSON.parse(decryptedAvatar);
             this.set('validations.' + input.from + '.avatardata',decryptedAvatarJson);
+            this.$.lvls.save();
           }catch(e){
             console.err('locals-verification-validator: failed to decode avatar data',e);
           }

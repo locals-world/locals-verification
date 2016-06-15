@@ -11,6 +11,9 @@
 
 <link rel="import" href="../../bower_components/locals-whisperer/locals-whisperer.html">
 
+
+<link rel="import" href="locals-verification-localstorage.html">
+
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
 
@@ -55,11 +58,13 @@ Example:
   }
 
   </style>
-   <!--  <iron-localstorage 
+<!--     <iron-localstorage 
       name="locals-validations" 
       value="{{incomingvalidations}}"
-    ></iron-localstorage> -->
-
+    ></iron-localstorage>
+ -->
+    <locals-verification-localstorage nrofitems="{{vals}}" data="{{incomingvalidations}}">
+    </locals-verification-localstorage>
 
     <template is="dom-if" if="{{novals}}">
       <locals-button class="valbtn" icon="verify" small bgrgba="0,0,0,0.05"></locals-button>
@@ -91,13 +96,13 @@ Example:
       incomingvalidations: {
         type: Object,
         notify: true,
-        observer: '_incomingvalidations'
+        //observer: '_incomingvalidations'
       },
       vals: {
         type: Number,
-        notify: true
+        notify: true,
         // value: 0,
-        // observer: '_vals'
+        observer: '_vals'
       },
 
       novals: {
@@ -128,6 +133,7 @@ Example:
     ready: function() {
       console.log('locals-verification-handler => ready');
       // this.vals = 7;
+
     },
 
     attached: function() {
@@ -144,7 +150,6 @@ Example:
 
       this.web3.addEventListener('web3-ready', function(e) {
         this.checkValidation(e);
-        
         //console.log('anything?', this.account, this.web3);
       }.bind(this));
           
