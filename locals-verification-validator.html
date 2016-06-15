@@ -321,8 +321,12 @@ Example:
 
     addValidation: function() {
       this.addValidationToContract(function(err, txhash) {
+
         if (this.selected) {
-           console.log('locals-verification-validator : sending confirmation back to',this.selected); 
+          if (err) {
+            // show error to validator that his transaction errored....
+          }
+          console.log('locals-verification-validator : sending confirmation back to', this.selected);
           this.whisper.whisperpost(this.selected, JSON.stringify({
             command: 'sendconfirmation',
             from: this.currentchannel,
@@ -332,7 +336,6 @@ Example:
             }
           }));
           //this.set('validations.' + this.selected,null);
-
         } else {
           // i should have a selected item....
         }
