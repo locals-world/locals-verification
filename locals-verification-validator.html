@@ -149,14 +149,13 @@ Example:
 
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
-        <template is="dom-if" if="{{!validations}}">
+        <template is="dom-if" if="{{_objectisempty(validations)}}">
         <div class="whitespace"></div>
 
           <p>je hebt nog geen validaties</p>
         </template>
 
-        <template is="dom-if" if="{{validations}}">
-<!--           <p>je hebt nog geen validaties</p> -->
+        <template is="dom-if" if="{{!_objectisempty(validations)}}">
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
             <div on-tap="goDetail" class="detailinlist">
               <p>{{item.avatardata.firstname}} {{item.avatardata.lastname}}</p>
@@ -173,9 +172,9 @@ Example:
 
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
       <div class="total">
-        <h1><span>{{selected}}</span> bevestigen?</h1>
+<!--         <h1><span>{{selected}}</span> bevestigen?</h1> -->
           <locals-objectrender key="avatar" objectdata="{{selectedobject}}" renderstate="dataview" class="foo"></locals-objectrender>
-         <locals-confirm on-confirm="addValidation" on-cancel="backList">Valideren?</locals-confirm>
+         <locals-confirm on-confirm="addValidation" on-cancel="backList"></locals-confirm>
 
          <span>{{transactionHash}}</span>
 
@@ -460,6 +459,13 @@ Example:
         return ('0x' + address);
       }
       return address;
+    },
+
+    _objectisempty: function(myobject){
+        if(!myobject){
+          return true;
+          }
+      return(Object.keys(myobject).length === 0);
     }
 
 
