@@ -6,6 +6,7 @@
 <link rel="import" href="../locals-style/locals-style.html">
 <link rel="import" href="../locals-confirm/locals-confirm.html">
 <link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
 
@@ -27,6 +28,10 @@ Example:
         background-color: var(--locals-grey1);
 
       }
+
+      neon-animated-pages {
+        height: 100%;
+      }
       .valbtn {
         margin-right: 10px; 
       }
@@ -43,6 +48,7 @@ Example:
       .total {
         width: 100vw;
         min-height: 100vh;
+        background-color: var(--locals-grey1);
 
         @apply(--layout-vertical);
         @apply(--layout-center);
@@ -50,7 +56,7 @@ Example:
 
       .topbar {
         width: 100%;
-        background-color: transparent;
+        background-color: var(--locals-grey1);
         height: var(--topbar-height);
         @apply(--layout-horizontal);
         @apply(--layout-center);
@@ -133,13 +139,20 @@ Example:
       on-iron-localstorage-load-empty="_initvalidations"
       ></iron-localstorage>
 
+<!--     <template is="dom-if" if="{{_is(visualmode,'button')}}">
+    <locals-button class="valbtn" icon="addval" small></locals-button>
+    </template> -->
+    <div class="topbar">
+      <p class="flex"></p>
+      <locals-button class="exit homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button>
+    </div>
 
-    <template is="dom-if" if="{{_is(visualmode,'list')}}">
+
+    <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="slide-from-left-animation" exit-animation="slide-right-animation">
+    <neon-animatable visualmode="list">
+<!--     <template is="dom-if" if="{{_is(visualmode,'list')}}"> -->
     <div class="total">
-        <div class="topbar">
-          <p class="flex"></p>
-          <locals-button class="exit homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button>
-        </div>
+
 
         <h1>Jouw code is</h1>
         <h1 class="code"><span>{{topic}}</span></h1>
@@ -147,11 +160,9 @@ Example:
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
         <template is="dom-if" if="{{_objectisempty(validations)}}">
-        <div class="whitespace"></div>
-
+          <div class="whitespace"></div>
           <p>je hebt nog geen validaties</p>
         </template>
-
         <template is="dom-if" if="{{!_objectisempty(validations)}}">
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
             <div on-tap="goDetail" class="detailinlist">
@@ -162,20 +173,17 @@ Example:
           </template>
         </template>
     </div>
+    </neon-animatable>
 
-
-    </template>
-
-    <template is="dom-if" if="{{_is(visualmode,'detail')}}">
+    <!-- <template is="dom-if" if="{{_is(visualmode,'detail')}}"> -->
+    <neon-animatable visualmode="detail">
       <div class="total">
-<!--         <h1><span>{{selected}}</span> bevestigen?</h1> -->
           <locals-objectrender key="avatar" objectdata="{{selectedobject}}" renderstate="dataview" class="foo"></locals-objectrender>
          <locals-confirm on-confirm="addValidation" on-cancel="backList"></locals-confirm>
-
          <span>{{transactionHash}}</span>
-
       </div>
-    </template>
+    </neon-animatable>
+  </neon-animated-pages>
 
   </template>
 
