@@ -205,9 +205,10 @@ Example:
        * Ether-pudding uses another method, with web3.eth.getTransaction(...) and checking the txHash;
        * on https://github.com/ConsenSys/ether-pudding/blob/master/index.js
        */
+      var web3wallet = document.querySelector('web3-wallet');
       var blockCounter = 15;
       // Wait for tx to be finished
-      var filter = this.web3.eth.filter('latest').watch(function(err, blockHash) {
+      var filter = web3wallet.web3.eth.filter('latest').watch(function(err, blockHash) {
         if (blockCounter <= 0) {
           filter.stopWatching();
           filter = null;
@@ -218,7 +219,7 @@ Example:
             return false;
         }
         // Get info about latest Ethereum block
-        var block = this.web3.eth.getBlock(blockHash);
+        var block = web3wallet.web3.eth.getBlock(blockHash);
         --blockCounter;
         // Found tx hash?
         if (block.transactions.indexOf(txHash) > -1) {

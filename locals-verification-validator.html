@@ -358,8 +358,9 @@ Example:
     
       this.web3wallet = document.querySelector('web3-wallet');
 
-      console.log('ik heb de user zijn account: ', this.fixaddress(this.web3wallet.account));
+      console.log('Mijn account: ', this.fixaddress(this.web3wallet.account));
       var otheruser = this.fixaddress(this.validations[this.selected].avatardata.account);
+      console.log('Zijn account: ', otheruser);
 
       this.contracturl = this.resolveUrl('../../contracts/localsTruth.json');
       this.importHref(this.contracturl, function(e) {
