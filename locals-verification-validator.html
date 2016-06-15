@@ -29,9 +29,9 @@ Example:
 
       }
 
-      neon-animated-pages {
+/*      neon-animated-pages {
         height: 100%;
-      }
+      }*/
       .valbtn {
         margin-right: 10px; 
       }
@@ -47,12 +47,14 @@ Example:
 
       .total {
         width: 100vw;
-        min-height: 100vh;
+        /*min-height: 100vh;*/
         background-color: var(--locals-grey1);
 
         @apply(--layout-vertical);
         @apply(--layout-center);
       }
+
+
 
       .topbar {
         width: 100%;
@@ -131,6 +133,20 @@ Example:
         @apply(--layout-flex);
       }
 
+      locals-objectrender {
+        width: 80%;
+      }
+
+      .backbtn {
+        width: 80%;
+        box-sizing: border-box;
+        padding: 0px 0px 10px 0px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);          
+      }
+
+      
+
     </style>
 
     <iron-localstorage 
@@ -144,10 +160,10 @@ Example:
     </template> -->
     <div class="topbar">
       <p class="flex"></p>
-      <locals-button class="exit homebtn" id="exitbtn" icon="plus" on-tap="toHome"></locals-button>
+      <locals-button bgrgba="0,0,0,0" id="exitbtn" icon="declinenew" on-tap="toHome"></locals-button>
     </div>
 
-    <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="slide-from-left-animation" exit-animation="slide-right-animation">
+    <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
     <neon-animatable visualmode="list">
 <!--     <template is="dom-if" if="{{_is(visualmode,'list')}}"> -->
     <div class="total">
@@ -166,7 +182,7 @@ Example:
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
             <div on-tap="goDetail" class="detailinlist">
               <p>{{item.avatardata.firstname}} {{item.avatardata.lastname}}</p>
-              <locals-button icon="arrowright" small></locals-button>
+              <locals-button bgrgba="0,0,0,0" icon="arrowright" small></locals-button>
             </div>
             <div class="tussenschot"></div>
           </template>
@@ -176,10 +192,18 @@ Example:
 
     <!-- <template is="dom-if" if="{{_is(visualmode,'detail')}}"> -->
     <neon-animatable visualmode="detail">
-      <div class="total">
-          <locals-objectrender key="avatar" objectdata="{{selectedobject}}" renderstate="dataview" class="foo"></locals-objectrender>
-         <locals-confirm on-confirm="addValidation" on-cancel="backList"></locals-confirm>
-         <span>{{transactionHash}}</span>
+      <div class="total detail">
+        <div class="tussenschot"></div>
+        <div class="whitespace"></div>
+        <div class="backbtn">
+          <locals-button bgrgba="0,0,0,0" icon="arrowleft" small on-tap="toList"></locals-button>
+          <p class="flex"></p>
+        </div>
+        <locals-objectrender key="avatar" objectdata="{{selectedobject}}" renderstate="dataview"></locals-objectrender>
+        <locals-confirm on-confirm="addValidation" on-cancel="backList"></locals-confirm>
+        <div class="whitespace"></div>
+        <div class="tussenschot"></div>
+         <!-- <span>{{transactionHash}}</span> -->
       </div>
     </neon-animatable>
 
@@ -254,6 +278,10 @@ Example:
 
     toHome: function() {
       this.fire('to-home');
+    },
+
+    toList: function() {
+      this.visualmode = 'list';    
     },
 
     goDetail: function(e) {
