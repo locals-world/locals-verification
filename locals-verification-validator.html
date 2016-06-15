@@ -331,7 +331,7 @@ Example:
               txhash: txhash
             }
           }));
-          this.set('validations.' + this.selected,null);
+          //this.set('validations.' + this.selected,null);
 
         } else {
           // i should have a selected item....
@@ -348,15 +348,11 @@ Example:
       } else {
         // i should have a selected item....
       }
-      this.set('validations.' + this.selected,null);
+      //this.set('validations.' + this.selected,null);
     },
 
     addValidationToContract: function(cb) {
-      var self = this;
-
-      console.log(this.selected);
-      debugger;
-
+    
       this.web3wallet = document.querySelector('web3-wallet');
 
       console.log('ik heb de user zijn account: ', this.fixaddress(this.web3wallet.account));
@@ -365,23 +361,23 @@ Example:
       this.contracturl = this.resolveUrl('../../contracts/localsTruth.json');
       this.importHref(this.contracturl, function(e) {
         this.progress = 'addingtoindex';
-        self.contractjson = JSON.parse(e.target.import.body.innerText);
+        this.contractjson = JSON.parse(e.target.import.body.innerText);
         this.web3wallet.web3.eth.getGasPrice(function(err, result) {
           var gasPrice = result.toNumber(10);
           console.log('gasprice: ', gasPrice);
-          var MyContract = self.web3wallet.web3.eth.contract(self.contractjson.abi);
-          var myContractInstance = MyContract.at(self.contractaddr);
+          var MyContract = this.web3wallet.web3.eth.contract(this.contractjson.abi);
+          var myContractInstance = MyContract.at(this.contractaddr);
 
           //var otheruser = '0xfd5A58b4a5490A1A5928d08c4B9738877B97fFE9';// 'daisy'
           var hash = 'sha3hash';
           var myhash = 'mysha3hash';
 
           result = myContractInstance.addVerification.sendTransaction(otheruser, hash, myhash , {
-              from: self.fixaddress(self.web3wallet.account),
+              from: this.fixaddress(this.web3wallet.account),
               gasPrice: gasPrice,
               gasLimit: 3000000,
               gas: 2000000,
-              data: self.contractjson.bytecode
+              data: this.contractjson.bytecode
             },
             function(err, result) {
               if (err !== null) {
