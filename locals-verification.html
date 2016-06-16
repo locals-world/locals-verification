@@ -56,6 +56,8 @@ Example:
 
       p {
         @apply(--locals-font-body1);
+        color:var(--locals-blue);
+        font-size:16px;
       }
 
 
@@ -93,6 +95,25 @@ Example:
         height: 20px;
       }
 
+      .confirmed {
+        width: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+
+
+      .confirmedv {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);        
+        @apply(--layout-wrap);
+        width: 70%;
+      }
+
+      .confirmedv p {
+        @apply(--opensans-semibold);
+        text-align: center;     
+      }
+
     </style>
     <div class="total">
     <div class="valcanvas">
@@ -110,11 +131,18 @@ Example:
     </template>
 
     <template is="dom-if" if="{{_is(mode,'confirmed-by-user')}}">
-      <locals-loader small>Confirmed by validator - now waiting for confirmation on the blockchain</locals-loader>
+      <locals-loader small>Confirmed by validator</locals-loader>
     </template>
 
     <template is="dom-if" if="{{_is(mode,'confirmed-by-blockchain')}}">
-      <locals-loader small>Confirmed by blockchain</locals-loader>
+      <div class="confirmed">
+        <div class="confirmedv">
+          <locals-icon icon="v" iconcolor="blue" small></locals-icon>
+          <p>Your data has been validated!</p>
+        </div>
+        <div class="whitespace"></div>
+        <locals-button icon="arrowleft" on-tap="cancel" confirmsmall bg="grey1" small></locals-button>
+      </div>
     </template>
 
     <template is="dom-if" if="{{_is(mode,'rejected-by-blockchain')}}">
