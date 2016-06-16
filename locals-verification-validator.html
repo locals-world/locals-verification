@@ -7,7 +7,6 @@
 <link rel="import" href="../locals-confirm/locals-confirm.html">
 <link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="locals-verification-localstorage.html">
 
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
@@ -161,8 +160,8 @@ Example:
     <locals-button class="valbtn" icon="addval" small></locals-button>
     </template> -->
 
-    <locals-verification-localstorage id="lvls" data="{{validations}}">
-    </locals-verification-localstorage>
+<!--     <locals-verification-localstorage on-items-changed="_updateCount" id="lvls" data="{{validations}}">
+    </locals-verification-localstorage> -->
 
     <div class="topbar">
       <p class="flex"></p>
@@ -221,6 +220,7 @@ Example:
 </dom-module>
 
 <script>
+  var lvls;
   Polymer({
 
     is: 'locals-verification-validator',
@@ -253,9 +253,9 @@ Example:
 //      return this.validations[selected].avatardata;
     },
 
-    _initvalidations: function(){
-      this.validations = {};
-    },
+    // _initvalidations: function(){
+    //   this.validations = {};
+    // },
 
     ready: function() {
 
@@ -265,11 +265,26 @@ Example:
       //this.$.util.object2array({a:1});
     },
 
+
+
     attached: function() {
+      var self = this;
       this.visualmode = 'list';    
       console.log('locals-verification-validator topic is', this.topic);
 
       this.whisper = document.querySelector('locals-whisperer');
+
+      lvls = document.querySelector('#lvls');
+
+      //this.validations = lvls.data;
+
+      lvls.addEventListener('ls-changed', function(e){
+        console.log('changed? ',e.detail);
+        self.validations = e.detail;
+      });
+
+      
+
       
       if (!this.whisper){
         console.error('locals-verification-validator should find a whisper component');
@@ -359,9 +374,9 @@ Example:
         // i should have a selected item....
       }
       //debugger;
-      delete this.validations[this.selected];
+      delete lvls.data.validations[this.selected];
       this.visualmode = 'list';
-      this.$.lvls.save();
+      lvls.save();
       //this.set('validations.' + this.selected,null);
     },
 
@@ -460,6 +475,7 @@ Example:
       //debugger;
       console.log('incoming whisper msg: ', e.detail);
 
+
       var input = e.detail.payload;
 
       switch (input.command) {
@@ -477,15 +493,18 @@ Example:
           crypt.setPublicKey(input.data.pubkey);
 
           var aeskey = generateKey(50);
-          if(!this.validations){
-            this.validations = {};
+
+
+          
+          if(!lvls.data){
+            lvls.data = {};
           };
-          this.validations[input.from] = {
+          lvls.data[input.from] = {
             easkey: aeskey,
             pubkey: input.data.pubkey
           };
 
-          this.$.lvls.save();
+          lvls.save();
 
           var encryptedkey = crypt.encrypt(aeskey);
 
@@ -503,7 +522,7 @@ Example:
             break;
           }
 
-          var easKey = this.validations[input.from].easkey;
+          var easKey = lvls.data[input.from].easkey;
 
 
 
@@ -512,10 +531,13 @@ Example:
 
           try{
             decryptedAvatarJson = JSON.parse(decryptedAvatar);
-            this.set('validations.' + input.from + '.avatardata',decryptedAvatarJson);
-            this.$.lvls.save();
+            
+            lvls.data[input.from].avatardata = decryptedAvatarJson;
+            //this.set('lvls.datavalidations.' + input.from + '.avatardata',decryptedAvatarJson);
+
+            lvls.save();
           }catch(e){
-            console.err('locals-verification-validator: failed to decode avatar data',e);
+            console.log('locals-verification-validator: failed to decode avatar data',e);
           }
 
           // close the custom channel

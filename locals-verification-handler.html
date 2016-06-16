@@ -63,8 +63,7 @@ Example:
       value="{{incomingvalidations}}"
     ></iron-localstorage>
  -->
-    <locals-verification-localstorage nrofitems="{{vals}}" data="{{incomingvalidations}}">
-    </locals-verification-localstorage>
+   
 
     <template is="dom-if" if="{{novals}}">
       <locals-button class="valbtn" icon="verify" small bgrgba="0,0,0,0.05"></locals-button>
@@ -100,7 +99,7 @@ Example:
       },
       vals: {
         type: Number,
-        notify: true,
+        //notify: true
         // value: 0,
         observer: '_vals'
       },
@@ -172,6 +171,11 @@ Example:
       console.log('iron-localstorage-load!');
     },
 
+    _updateCount: function(e){
+      console.log('nr of items changed ', e.detail);
+      this.vals = e.detail;
+    },
+
 
     _vals: function() {
 
@@ -180,8 +184,8 @@ Example:
       } else {
         this.novals = true;
       }
-      console.log('DE NOVALS IS:: ', this.novals);
-
+      console.log('DE NOVALS IS:: ', this.novals,' items: ', this.vals);
+      this.nrofitems = this.vals;
     },
 
     toHome:function(){

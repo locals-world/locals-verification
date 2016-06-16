@@ -23,11 +23,13 @@ Polymer({
       data: {
       	type: Object,
       	notify: true,
-      	value: {}
+      	value: {},
+      	observer: '_data'
       },
       nrofitems: {
       	type: Number,
-      	notify: true
+      	notify: true,
+      	observer: '_nrofitems'
       }
     },
 
@@ -43,10 +45,25 @@ Polymer({
     	this.data = JSON.parse(this.localstoragevalue);
     	this.nrofitems = Object.keys(this.data).length;
     	console.log('WAITING: ',this.nrofitems);
+    	this.fire('ls-changed', this.data);
   	},
 
+  	_nrofitems: function(){
+  		console.log('nrofitems changed', this.nrofitems);
+  		this.fire('items-changed', this.nrofitems);
+  	},
+
+  	_data: function(){
+
+  	},
+
+
   	save: function(){
+  		
     	this.localstoragevalue = JSON.stringify(this.data);
+    	this.fire('items-changed', Object.keys(this.data).length);
+    	this.nrofitems = Object.keys(this.data).length;
+    	console.log('saving ls');
   	},
 
   	read: function(){
