@@ -7,6 +7,7 @@
 <link rel="import" href="../locals-confirm/locals-confirm.html">
 <link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
+
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
 
@@ -149,24 +150,28 @@ Example:
 
     </style>
 
-    <iron-localstorage 
+   <!--  <iron-localstorage 
       name="locals-validations" 
       value="{{validations}}"
       on-iron-localstorage-load-empty="_initvalidations"
-      ></iron-localstorage>
+      ></iron-localstorage> -->
 
 <!--     <template is="dom-if" if="{{_is(visualmode,'button')}}">
     <locals-button class="valbtn" icon="addval" small></locals-button>
     </template> -->
+
+<!--     <locals-verification-localstorage on-items-changed="_updateCount" id="lvls" data="{{validations}}">
+    </locals-verification-localstorage> -->
+
     <div class="topbar">
       <p class="flex"></p>
       <locals-button bgrgba="0,0,0,0" id="exitbtn" icon="declinenew" on-tap="toHome"></locals-button>
     </div>
 
-    <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
+   <!--  <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation"> -->
 
-    <neon-animatable visualmode="list">
-<!--     <template is="dom-if" if="{{_is(visualmode,'list')}}"> -->
+  <!--   <neon-animatable visualmode="list"> -->
+    <template is="dom-if" if="{{_is(visualmode,'list')}}">
     <div class="total">
 
 
@@ -175,11 +180,11 @@ Example:
 
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
-        <template is="dom-if" if="{{_objectisempty(validations)}}">
+        <template is="dom-if" if="{{_objectisempty(validations,validations.*)}}">
           <div class="whitespace"></div>
           <p>je hebt nog geen validaties</p>
         </template>
-        <template is="dom-if" if="{{!_objectisempty(validations)}}">
+        <template is="dom-if" if="{{!_objectisempty(validations,validations.*)}}">
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
             <div on-tap="goDetail" class="detailinlist">
               <p>{{item.avatardata.firstname}} {{item.avatardata.lastname}}</p>
@@ -189,10 +194,11 @@ Example:
           </template>
         </template>
     </div>
-    </neon-animatable>
+  </template>
+   <!--  </neon-animatable> -->
 
-    <!-- <template is="dom-if" if="{{_is(visualmode,'detail')}}"> -->
-    <neon-animatable visualmode="detail">
+    <template is="dom-if" if="{{_is(visualmode,'detail')}}">
+   <!--  <neon-animatable visualmode="detail"> -->
       <div class="total detail">
         <div class="tussenschot"></div>
         <div class="whitespace"></div>
@@ -206,14 +212,15 @@ Example:
         <div class="tussenschot"></div>
          <!-- <span>{{transactionHash}}</span> -->
       </div>
-    </neon-animatable>
-  </neon-animated-pages>
-
+    <!-- </neon-animatable> -->
+ <!--  </neon-animated-pages> -->
+  </template>
   </template>
 
 </dom-module>
 
 <script>
+  var lvls;
   Polymer({
 
     is: 'locals-verification-validator',
@@ -246,9 +253,9 @@ Example:
 //      return this.validations[selected].avatardata;
     },
 
-    _initvalidations: function(){
-      this.validations = {};
-    },
+    // _initvalidations: function(){
+    //   this.validations = {};
+    // },
 
     ready: function() {
 
@@ -258,11 +265,26 @@ Example:
       //this.$.util.object2array({a:1});
     },
 
+
+
     attached: function() {
+      var self = this;
       this.visualmode = 'list';    
       console.log('locals-verification-validator topic is', this.topic);
 
       this.whisper = document.querySelector('locals-whisperer');
+
+      lvls = document.querySelector('#lvls');
+
+      //this.validations = lvls.data;
+
+      lvls.addEventListener('ls-changed', function(e){
+        console.log('changed? ',e.detail);
+        self.validations = e.detail;
+      });
+
+      
+
       
       if (!this.whisper){
         console.error('locals-verification-validator should find a whisper component');
@@ -351,6 +373,10 @@ Example:
       } else {
         // i should have a selected item....
       }
+      //debugger;
+      delete lvls.data.validations[this.selected];
+      this.visualmode = 'list';
+      lvls.save();
       //this.set('validations.' + this.selected,null);
     },
 
@@ -449,6 +475,7 @@ Example:
       //debugger;
       console.log('incoming whisper msg: ', e.detail);
 
+
       var input = e.detail.payload;
 
       switch (input.command) {
@@ -466,10 +493,18 @@ Example:
           crypt.setPublicKey(input.data.pubkey);
 
           var aeskey = generateKey(50);
-          this.validations[input.from] = {
+
+
+          
+          if(!lvls.data){
+            lvls.data = {};
+          };
+          lvls.data[input.from] = {
             easkey: aeskey,
             pubkey: input.data.pubkey
           };
+
+          lvls.save();
 
           var encryptedkey = crypt.encrypt(aeskey);
 
@@ -487,16 +522,22 @@ Example:
             break;
           }
 
-          var easKey = this.validations[input.from].easkey;
+          var easKey = lvls.data[input.from].easkey;
+
+
 
           var decryptedAvatar = CryptoJS.AES.decrypt(input.data, easKey).toString(CryptoJS.enc.Utf8);
           var decryptedAvatarJson;
 
           try{
             decryptedAvatarJson = JSON.parse(decryptedAvatar);
-            this.set('validations.' + input.from + '.avatardata',decryptedAvatarJson);
+            
+            lvls.data[input.from].avatardata = decryptedAvatarJson;
+            //this.set('lvls.datavalidations.' + input.from + '.avatardata',decryptedAvatarJson);
+
+            lvls.save();
           }catch(e){
-            console.err('locals-verification-validator: failed to decode avatar data',e);
+            console.log('locals-verification-validator: failed to decode avatar data',e);
           }
 
           // close the custom channel

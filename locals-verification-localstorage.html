@@ -1,0 +1,76 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
+
+<dom-module id="locals-verification-localstorage">
+<template>
+	<iron-localstorage 
+		name="lsverifications" 
+		value="{{localstoragevalue}}"
+		on-iron-localstorage-load-empty="init">
+	</iron-localstorage>
+</template>
+<script>
+Polymer({
+
+    is: 'locals-verification-localstorage',
+
+    properties: {
+      localstoragevalue: {
+        type: String,
+        observer: '_localstorage'
+      },
+      data: {
+      	type: Object,
+      	notify: true,
+      	value: {},
+      	observer: '_data'
+      },
+      nrofitems: {
+      	type: Number,
+      	notify: true,
+      	observer: '_nrofitems'
+      }
+    },
+
+    ready: function(){
+    	console.log('hello from kf');
+    },
+
+ 	init: function(){
+    	this.localstoragevalue = JSON.stringify(this.data);
+	},
+
+  	_localstorage: function(){
+    	this.data = JSON.parse(this.localstoragevalue);
+    	this.nrofitems = Object.keys(this.data).length;
+    	console.log('WAITING: ',this.nrofitems);
+    	this.fire('ls-changed', this.data);
+  	},
+
+  	_nrofitems: function(){
+  		console.log('nrofitems changed', this.nrofitems);
+  		this.fire('items-changed', this.nrofitems);
+  	},
+
+  	_data: function(){
+
+  	},
+
+
+  	save: function(){
+  		
+    	this.localstoragevalue = JSON.stringify(this.data);
+    	this.fire('items-changed', Object.keys(this.data).length);
+    	this.nrofitems = Object.keys(this.data).length;
+    	console.log('saving ls');
+  	},
+
+  	read: function(){
+    	this.save();
+  	}
+
+});
+
+</script>
+</dom-module>
