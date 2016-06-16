@@ -308,25 +308,6 @@ Example:
 
       this.selectedobject = this.validations[this.selected].objectdata;
 
-    // this.selectedobject = {
-     
-    //     "component": {
-    //       "name": "locals-avatar",
-    //       "contract": "0x000"
-    //     },
-    //     "data": this.validations[this.selected].avatardata,
-    //     // "config": [
-    //     //   [0, 0],
-    //     //   [0, 0],
-    //     //   [0, 0],
-    //     //   [0, "5"],
-    //     //   [0, 0],
-    //     //   [0, 0],
-    //     //   [0, 0],
-    //     //   [0, 0],
-    //     //   [0, 0]
-    //     // ]
-      
     // };
 
       this.visualmode = 'detail';
@@ -353,6 +334,9 @@ Example:
             }
           }));
 
+          delete lvls.data[this.selected];
+          lvls.save();
+          this.visualmode = 'list';
 
         } else {
           // i should have a selected item....
@@ -369,10 +353,10 @@ Example:
       } else {
         // i should have a selected item....
       }
+
       // remove from list
-      delete lvls.data[this.selected];
-      this.visualmode = 'list';
       lvls.save();
+      this.visualmode = 'list';
       //this.set('validations.' + this.selected,null);
     },
 
@@ -470,7 +454,7 @@ Example:
     processMsg: function(e) {
       //debugger;
       console.log('incoming whisper msg: ', e.detail);
-
+      this.web3wallet = document.querySelector('web3-wallet');
 
       var input = e.detail.payload;
 
@@ -543,6 +527,19 @@ Example:
 
         default:
           //console.log('discard message',e.detail);
+          break;
+
+          case "requestpubkey":
+            this.whisper.whisperpost(input.from, JSON.stringify({
+            command: 'sendpubkey',
+            from: this.currentchannel,
+            data: this.fixaddress(this.web3wallet.account)
+          }));
+          break;
+
+          case "sendpubkey":
+            this.fire('pub-key', input.data);
+            console.log('received pub key: ', input.data);
           break;
 
       }
