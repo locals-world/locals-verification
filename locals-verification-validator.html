@@ -187,7 +187,7 @@ Example:
         <template is="dom-if" if="{{!_objectisempty(validations,validations.*)}}">
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
             <div on-tap="goDetail" class="detailinlist">
-              <p>{{item.avatardata.firstname}} {{item.avatardata.lastname}}</p>
+              <p>{{item.objectdata.data.firstname}} {{item.objectdata.data.lastname}}</p>
               <locals-button bgrgba="0,0,0,0" icon="arrowright" small></locals-button>
             </div>
             <div class="tussenschot"></div>
@@ -276,15 +276,10 @@ Example:
 
       lvls = document.querySelector('#lvls');
 
-      //this.validations = lvls.data;
-
       lvls.addEventListener('ls-changed', function(e){
         console.log('changed? ',e.detail);
         self.validations = e.detail;
       });
-
-      
-
       
       if (!this.whisper){
         console.error('locals-verification-validator should find a whisper component');
@@ -307,32 +302,32 @@ Example:
       this.visualmode = 'list';    
     },
 
-
-
     goDetail: function(e) {
 
       this.selected = e.model.item._key;
 
-    this.selectedobject = {
+      this.selectedobject = this.validations[this.selected].objectdata;
+
+    // this.selectedobject = {
      
-        "component": {
-          "name": "locals-avatar",
-          "contract": "0x000"
-        },
-        "data": this.validations[this.selected].avatardata,
-        // "config": [
-        //   [0, 0],
-        //   [0, 0],
-        //   [0, 0],
-        //   [0, "5"],
-        //   [0, 0],
-        //   [0, 0],
-        //   [0, 0],
-        //   [0, 0],
-        //   [0, 0]
-        // ]
+    //     "component": {
+    //       "name": "locals-avatar",
+    //       "contract": "0x000"
+    //     },
+    //     "data": this.validations[this.selected].avatardata,
+    //     // "config": [
+    //     //   [0, 0],
+    //     //   [0, 0],
+    //     //   [0, 0],
+    //     //   [0, "5"],
+    //     //   [0, 0],
+    //     //   [0, 0],
+    //     //   [0, 0],
+    //     //   [0, 0],
+    //     //   [0, 0]
+    //     // ]
       
-    };
+    // };
 
       this.visualmode = 'detail';
     },
@@ -357,7 +352,8 @@ Example:
               txhash: txhash
             }
           }));
-          //this.set('validations.' + this.selected,null);
+
+
         } else {
           // i should have a selected item....
         }
@@ -373,8 +369,8 @@ Example:
       } else {
         // i should have a selected item....
       }
-      //debugger;
-      delete lvls.data.validations[this.selected];
+      // remove from list
+      delete lvls.data[this.selected];
       this.visualmode = 'list';
       lvls.save();
       //this.set('validations.' + this.selected,null);
@@ -385,7 +381,7 @@ Example:
       this.web3wallet = document.querySelector('web3-wallet');
 
       console.log('Mijn account: ', this.fixaddress(this.web3wallet.account));
-      var otheruser = this.fixaddress(this.validations[this.selected].avatardata.account);
+      var otheruser = this.fixaddress(this.validations[this.selected].objectdata.account);
       console.log('Zijn account: ', otheruser);
 
       this.contracturl = this.resolveUrl('../../contracts/localsTruth.json');
@@ -532,7 +528,7 @@ Example:
           try{
             decryptedAvatarJson = JSON.parse(decryptedAvatar);
             
-            lvls.data[input.from].avatardata = decryptedAvatarJson;
+            lvls.data[input.from].objectdata = decryptedAvatarJson;
             //this.set('lvls.datavalidations.' + input.from + '.avatardata',decryptedAvatarJson);
 
             lvls.save();

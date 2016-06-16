@@ -43,9 +43,11 @@ Polymer({
 
   	_localstorage: function(){
     	this.data = JSON.parse(this.localstoragevalue);
-    	this.nrofitems = Object.keys(this.data).length;
-    	console.log('WAITING: ',this.nrofitems);
-    	this.fire('ls-changed', this.data);
+      if (this.data){
+        this.nrofitems = Object.keys(this.data).length;
+        console.log('WAITING: ',this.nrofitems);
+        this.fire('ls-changed', this.data);        
+      }
   	},
 
   	_nrofitems: function(){
