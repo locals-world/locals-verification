@@ -10,6 +10,7 @@
 
 <script type="text/javascript" src="bower_components/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="bower_components/cryptojslib/rollups/aes.js"></script>
+<script type="text/javascript" src="bower_components/cryptojslib/rollups/sha3.js"></script>
 
 <!--
 Verification component listens to verification 
@@ -206,7 +207,7 @@ Example:
           <locals-button bgrgba="0,0,0,0" icon="arrowleft" small on-tap="toList"></locals-button>
           <p class="flex"></p>
         </div>
-        <locals-objectrender key="avatar" objectdata="{{selectedobject}}" renderstate="dataview"></locals-objectrender>
+        <locals-objectrender hashfunction="{{hashfunction}}" key="avatar" objectdata="{{selectedobject}}" renderstate="dataview"></locals-objectrender>
         <locals-confirm on-confirm="addValidation" on-cancel="rejectValidation"></locals-confirm>
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
@@ -243,6 +244,10 @@ Example:
         type: String,
         value: '0xdd9894fAc561dd07A2765B3985f7E4BfAe1dB636'
       },
+      hashfunction: {
+        type: Function,
+        observer : '_hashfunction'
+      }
     },
 
     // Element Lifecycle
@@ -287,6 +292,13 @@ Example:
       this.whisper.addEventListener('msg-received', function(e) {
         this.processMsg(e);
       }.bind(this));
+
+
+      //this.hashfunction('BLA');
+
+    },
+
+    _hashfunction: function(){
 
     },
 
@@ -334,9 +346,11 @@ Example:
             }
           }));
 
+          this.visualmode = 'list';
+
           delete lvls.data[this.selected];
           lvls.save();
-          this.visualmode = 'list';
+          
 
         } else {
           // i should have a selected item....
@@ -354,9 +368,11 @@ Example:
         // i should have a selected item....
       }
 
-      // remove from list
-      lvls.save();
       this.visualmode = 'list';
+      
+      // remove from list
+      delete lvls.data[this.selected];
+      lvls.save();
       //this.set('validations.' + this.selected,null);
     },
 
@@ -379,8 +395,20 @@ Example:
           var myContractInstance = MyContract.at(this.contractaddr);
 
           //var otheruser = '0xfd5A58b4a5490A1A5928d08c4B9738877B97fFE9';// 'daisy'
-          var hash = 'sha3hash';
-          var myhash = 'mysha3hash';
+
+          var acc= "";
+          var self = this;
+          Object.keys(this.validations[this.selected].objectdata.data).forEach(function(field){
+            acc += "|" + self.validations[self.selected].objectdata.data[field];
+          });        
+
+
+          var stringtohash = otheruser + acc;
+
+          console.log(CryptoJS.SHA3(stringtohash).toString(CryptoJS.enc.Hex));
+
+          // var hash = 'sha3hash';
+          // var myhash = 'mysha3hash';
 
           result = myContractInstance.addVerification.sendTransaction(otheruser, hash, myhash , {
               from: this.fixaddress(this.web3wallet.account),
@@ -474,12 +502,9 @@ Example:
 
           var aeskey = generateKey(50);
 
-
+          this.incomingrequests = {};
           
-          if(!lvls.data){
-            lvls.data = {};
-          };
-          lvls.data[input.from] = {
+          this.incomingrequests[input.from] = {
             easkey: aeskey,
             pubkey: input.data.pubkey
           };
@@ -502,7 +527,7 @@ Example:
             break;
           }
 
-          var easKey = lvls.data[input.from].easkey;
+          var easKey = this.incomingrequests[input.from].easkey;
 
 
 
@@ -512,9 +537,12 @@ Example:
           try{
             decryptedAvatarJson = JSON.parse(decryptedAvatar);
             
-            lvls.data[input.from].objectdata = decryptedAvatarJson;
-            //this.set('lvls.datavalidations.' + input.from + '.avatardata',decryptedAvatarJson);
+            this.incomingrequests[input.from].objectdata = decryptedAvatarJson;
 
+            if (!lvls.data){
+              lvls.data = {};
+            }
+            lvls.data[input.from] = this.incomingrequests[input.from];
             lvls.save();
           }catch(e){
             console.log('locals-verification-validator: failed to decode avatar data',e);

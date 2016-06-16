@@ -61,11 +61,12 @@ Polymer({
 
 
   	save: function(){
-  		
-    	this.localstoragevalue = JSON.stringify(this.data);
-    	this.fire('items-changed', Object.keys(this.data).length);
-    	this.nrofitems = Object.keys(this.data).length;
-    	console.log('saving ls');
+  		if (this.data){
+        this.localstoragevalue = JSON.stringify(this.data);
+        this.fire('items-changed', Object.keys(this.data).length);
+        this.nrofitems = Object.keys(this.data).length;
+        console.log('saving ls');        
+      }
   	},
 
   	read: function(){
