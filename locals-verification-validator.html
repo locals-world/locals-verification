@@ -57,6 +57,21 @@ Example:
       }
 
 
+      .canvas {
+        width: 100%;
+        min-height: 100vh;
+        box-sizing: border-box;
+        padding: 20vw 10vw 10vw 10vw;
+        background-color: var(--locals-grey1);
+        @apply(--layout-vertical);
+        @apply(--layout-center);        
+      }
+
+      .canvas h1 {
+        color: var(--locals-grey5);
+        white-space:normal;
+        margin-bottom: 30px;
+      }
 
       .topbar {
         width: 100%;
@@ -152,29 +167,28 @@ Example:
     </style>
 
 
+  <template is="dom-if" if="{{!canvalidate}}">
+    <div class="canvas">
+      <h1>You need two validations before you validate.</h1>
+      <locals-button id="exitbtn" icon="declinenew" on-tap="toHome"></locals-button>
+
+    </div>
+  </template>
+
+ <template is="dom-if" if="{{canvalidate}}">
     <div class="topbar">
       <p class="flex"></p>
       <locals-button bgrgba="0,0,0,0" id="exitbtn" icon="declinenew" on-tap="toHome"></locals-button>
     </div>
       <template is="dom-if" if="{{_is(visualmode,'list')}}">
       <div class="total">
-
-        <template is="dom-if" if="{{!canvalidate}}">
-          <p>Je kan nog niet valideren.</p>
-        </template>
-
-        <template is="dom-if" if="{{canvalidate}}">
-          <p>Je kan WEL valideren.</p>
-        </template>
-
         <h1>Jouw code is</h1>
         <h1 class="code"><span>{{topic}}</span></h1>
-
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
         <template is="dom-if" if="{{_objectisempty(validations,validations.*)}}">
           <div class="whitespace"></div>
-          <p>je hebt nog geen aanvragen</p>
+          <p>Nothing to validate</p>
         </template>
         <template is="dom-if" if="{{!_objectisempty(validations,validations.*)}}">
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
@@ -201,6 +215,9 @@ Example:
         <div class="tussenschot"></div>
       </div>
     </template>
+    </template>
+
+
   </template>
 
 </dom-module>
