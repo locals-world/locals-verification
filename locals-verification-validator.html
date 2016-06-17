@@ -405,9 +405,23 @@ Example:
 
           var stringtohash = otheruser + acc;
 
-          console.log(CryptoJS.SHA3(stringtohash).toString(CryptoJS.enc.Hex));
+          var hash = CryptoJS.SHA3(stringtohash).toString(CryptoJS.enc.Hex);
 
           // var hash = 'sha3hash';
+          var lsapi = document.querySelector("#lsapi");
+          var mydata = lsapi.data.collection.localsavatar.data;
+          
+          acc = '';
+
+          Object.keys(mydata).forEach(function(field){
+            acc += "|" + mydata[field];
+          }); 
+
+          var myaccount = this.fixaddress(this.web3wallet.account);
+
+          var myhash = CryptoJS.SHA3(myaccount + mydata).toString(CryptoJS.enc.Hex);
+
+          console.log('his: ', hash, 'mine: ',myhash);
           // var myhash = 'mysha3hash';
 
           result = myContractInstance.addVerification.sendTransaction(otheruser, hash, myhash , {
@@ -433,6 +447,9 @@ Example:
 
               }
             }.bind(this));
+
+          result2 = myContractInstance.checkVeracity.call('e04a5223bc810426e0bb864613eb99a80681fce5391ad89454468bf5a80ce1c4fd0626c6448509df00e7415ddc32cba01a4c299c27fa9840d0f7326ad8297b1b').toNumber();
+          console.log('my hash', result2);
         }.bind(this));
       }.bind(this));
 
