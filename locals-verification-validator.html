@@ -242,7 +242,7 @@ Example:
       },
       contractaddr: {
         type: String,
-        value: '0xdd9894fAc561dd07A2765B3985f7E4BfAe1dB636'
+        value: '0xCd306cbC50A1b04353514c3b4Dcb30aFF4C54887'
       },
       hashfunction: {
         type: Function,
@@ -419,7 +419,7 @@ Example:
 
           var myaccount = this.fixaddress(this.web3wallet.account);
 
-          var myhash = CryptoJS.SHA3(myaccount + mydata).toString(CryptoJS.enc.Hex);
+          var myhash = CryptoJS.SHA3(myaccount + acc).toString(CryptoJS.enc.Hex);
 
           console.log('his: ', hash, 'mine: ',myhash);
           // var myhash = 'mysha3hash';
