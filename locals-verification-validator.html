@@ -158,6 +158,15 @@ Example:
     </div>
       <template is="dom-if" if="{{_is(visualmode,'list')}}">
       <div class="total">
+
+        <template is="dom-if" if="{{!canvalidate}}">
+          <p>Je kan nog niet valideren.</p>
+        </template>
+
+        <template is="dom-if" if="{{canvalidate}}">
+          <p>Je kan WEL valideren.</p>
+        </template>
+
         <h1>Jouw code is</h1>
         <h1 class="code"><span>{{topic}}</span></h1>
 
@@ -165,7 +174,7 @@ Example:
         <div class="tussenschot"></div>
         <template is="dom-if" if="{{_objectisempty(validations,validations.*)}}">
           <div class="whitespace"></div>
-          <p>je hebt nog geen validaties</p>
+          <p>je hebt nog geen aanvragen</p>
         </template>
         <template is="dom-if" if="{{!_objectisempty(validations,validations.*)}}">
           <template is="dom-repeat" items="{{object2array(validations,validations.*)}}">
@@ -249,6 +258,8 @@ Example:
 
 
     attached: function() {
+      
+
       var self = this;
       this.visualmode = 'list';    
       console.log('locals-verification-validator topic is', this.topic);
@@ -269,8 +280,18 @@ Example:
         this.processMsg(e);
       }.bind(this));
 
-
       //this.hashfunction('BLA');
+      var self = this;
+      document.addEventListener('validations-update', function(e){
+         console.log(e.detail);
+         if(e.detail.number < 2){
+          self.canvalidate = false;
+        } else {
+          self.canvalidate = true;
+        }
+
+      });
+        //handler.avatarvalidations = 
 
     },
 
@@ -291,6 +312,7 @@ Example:
     },
 
     goDetail: function(e) {
+
 
       this.selected = e.model.item._key;
 

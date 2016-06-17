@@ -137,6 +137,8 @@ Example:
 
     attached: function() {
 
+      
+
       this.whisper = document.querySelector('locals-whisperer');
       this.web3 = document.querySelector('web3-wallet');
       
@@ -151,6 +153,8 @@ Example:
         this.checkValidation(e);
         //console.log('anything?', this.account, this.web3);
       }.bind(this));
+
+      
           
     },
 
@@ -163,6 +167,8 @@ Example:
         this.vals = Object.keys(this.incomingvalidations).length;
       console.log("HIER HEDDE GIJ ZE SE",this.vals);
       this._vals();
+
+
 
       }
     },
@@ -208,6 +214,8 @@ Example:
           var myclipContractInstance = myclipContract.at(self.contractaddr);
 
           self.nrofval = myclipContractInstance.checkVeracity.call(self.datahash).toNumber();
+
+          self.fire('validation-check', self.nrofval);
 
           // And the setup a filter that keeps on listening.
           // this.filter = this.web3.eth.filter('latest').watch(function() {
