@@ -151,31 +151,13 @@ Example:
 
     </style>
 
-   <!--  <iron-localstorage 
-      name="locals-validations" 
-      value="{{validations}}"
-      on-iron-localstorage-load-empty="_initvalidations"
-      ></iron-localstorage> -->
-
-<!--     <template is="dom-if" if="{{_is(visualmode,'button')}}">
-    <locals-button class="valbtn" icon="addval" small></locals-button>
-    </template> -->
-
-<!--     <locals-verification-localstorage on-items-changed="_updateCount" id="lvls" data="{{validations}}">
-    </locals-verification-localstorage> -->
 
     <div class="topbar">
       <p class="flex"></p>
       <locals-button bgrgba="0,0,0,0" id="exitbtn" icon="declinenew" on-tap="toHome"></locals-button>
     </div>
-
-   <!--  <neon-animated-pages attr-for-selected="visualmode" selected="{{visualmode}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation"> -->
-
-  <!--   <neon-animatable visualmode="list"> -->
-    <template is="dom-if" if="{{_is(visualmode,'list')}}">
-    <div class="total">
-
-
+      <template is="dom-if" if="{{_is(visualmode,'list')}}">
+      <div class="total">
         <h1>Jouw code is</h1>
         <h1 class="code"><span>{{topic}}</span></h1>
 
@@ -195,11 +177,8 @@ Example:
           </template>
         </template>
     </div>
-  </template>
-   <!--  </neon-animatable> -->
-
+    </template>
     <template is="dom-if" if="{{_is(visualmode,'detail')}}">
-   <!--  <neon-animatable visualmode="detail"> -->
       <div class="total detail">
         <div class="tussenschot"></div>
         <div class="whitespace"></div>
@@ -211,11 +190,8 @@ Example:
         <locals-confirm on-confirm="addValidation" on-cancel="rejectValidation"></locals-confirm>
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
-         <!-- <span>{{transactionHash}}</span> -->
       </div>
-    <!-- </neon-animatable> -->
- <!--  </neon-animated-pages> -->
-  </template>
+    </template>
   </template>
 
 </dom-module>
