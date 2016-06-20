@@ -278,7 +278,7 @@ Example:
       },
       contractaddr: {
         type: String,
-        value: '0xCd306cbC50A1b04353514c3b4Dcb30aFF4C54887'
+        value: '0x7352464F5Cdd6Ca109857472c3aC7AAfa300dbAe'
       },
       hashfunction: {
         type: Function,
@@ -431,7 +431,7 @@ Example:
     addValidationToContract: function(cb) {
     
       this.web3wallet = document.querySelector('web3-wallet');
-
+debugger;
       console.log('Mijn account: ', this.fixaddress(this.web3wallet.account));
       var otheruser = this.fixaddress(this.validations[this.selected].objectdata.account);
       console.log('Zijn account: ', otheruser);
