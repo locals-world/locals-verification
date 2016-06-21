@@ -119,7 +119,7 @@ Example:
     <div class="valcanvas">
       <template is="dom-if" if="{{_is(mode,'view')}}">
         <div class="pin"> 
-          <locals-input autofocus bind-value="{{pincode}}" label="Pincode" center></locals-input>
+          <locals-input autofocus bind-value="{{pincode}}" id="pincode" label="Pincode" center></locals-input>
           <locals-confirm on-confirm="toWaiting" type="next"></locals-confirm>
         </div>
       </template>
@@ -303,6 +303,9 @@ Example:
         }
       }));
       this.mode = 'waiting';
+      this.pincode = null;
+      this.$.pincode = null;
+
     },
     _is: function(a, b) {
       if (b === undefined) {
