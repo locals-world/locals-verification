@@ -278,7 +278,7 @@ Example:
       },
       contractaddr: {
         type: String,
-        value: '0x7352464F5Cdd6Ca109857472c3aC7AAfa300dbAe'
+        value: '0x480B73b92124A3b7a17614cc62DF218606A60cD3'
       },
       hashfunction: {
         type: Function,
@@ -500,7 +500,7 @@ debugger;
               }
             }.bind(this));
 
-          result2 = myContractInstance.checkVeracity.call('e04a5223bc810426e0bb864613eb99a80681fce5391ad89454468bf5a80ce1c4fd0626c6448509df00e7415ddc32cba01a4c299c27fa9840d0f7326ad8297b1b').toNumber();
+          result2 = myContractInstance.checkVeracity.call(myhash).toNumber();
           console.log('my hash', result2);
         }.bind(this));
       }.bind(this));
