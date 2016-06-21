@@ -245,6 +245,8 @@ Example:
         </div>
         <locals-objectrender hashfunction="{{hashfunction}}" key="avatar" objectdata="{{selectedobject}}" renderstate="dataview"></locals-objectrender>
         <locals-confirm on-confirm="addValidation" on-cancel="rejectValidation"></locals-confirm>
+        {{otherpartystring}}
+        {{otherpartyhash}}
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
       </div>
@@ -310,6 +312,10 @@ Example:
 
     attached: function() {
       
+      this.contractaddr = new Polymer.IronMetaQuery({
+          key: 'localstruthcontractaddress'
+        }).value;
+
         this.loadit = true;
 
       var self = this;
@@ -431,7 +437,7 @@ Example:
     addValidationToContract: function(cb) {
     
       this.web3wallet = document.querySelector('web3-wallet');
-debugger;
+//debugger;
       console.log('Mijn account: ', this.fixaddress(this.web3wallet.account));
       var otheruser = this.fixaddress(this.validations[this.selected].objectdata.account);
       console.log('Zijn account: ', otheruser);
@@ -475,6 +481,8 @@ debugger;
 
           console.log('his: ', hash, 'mine: ',myhash);
           // var myhash = 'mysha3hash';
+
+//debugger;
 
           result = myContractInstance.addVerification.sendTransaction(otheruser, hash, myhash , {
               from: this.fixaddress(this.web3wallet.account),
