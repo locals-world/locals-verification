@@ -245,6 +245,8 @@ Example:
         </div>
         <locals-objectrender hashfunction="{{hashfunction}}" key="avatar" objectdata="{{selectedobject}}" renderstate="dataview"></locals-objectrender>
         <locals-confirm on-confirm="addValidation" on-cancel="rejectValidation"></locals-confirm>
+        {{otherpartystring}}
+        {{otherpartyhash}}
         <div class="whitespace"></div>
         <div class="tussenschot"></div>
       </div>
@@ -278,7 +280,7 @@ Example:
       },
       contractaddr: {
         type: String,
-        value: '0xCd306cbC50A1b04353514c3b4Dcb30aFF4C54887'
+        value: '0x480B73b92124A3b7a17614cc62DF218606A60cD3'
       },
       hashfunction: {
         type: Function,
@@ -310,6 +312,10 @@ Example:
 
     attached: function() {
       
+      this.contractaddr = new Polymer.IronMetaQuery({
+          key: 'localstruthcontractaddress'
+        }).value;
+
         this.loadit = true;
 
       var self = this;
@@ -332,7 +338,6 @@ Example:
         this.processMsg(e);
       }.bind(this));
 
-      //this.hashfunction('BLA');
       var self = this;
       document.addEventListener('validations-update', function(e){
          console.log(e.detail);
@@ -344,7 +349,7 @@ Example:
         self.loadit = false;
 
 
-      });
+       });
         //handler.avatarvalidations = 
 
     },
@@ -431,7 +436,7 @@ Example:
     addValidationToContract: function(cb) {
     
       this.web3wallet = document.querySelector('web3-wallet');
-
+//debugger;
       console.log('Mijn account: ', this.fixaddress(this.web3wallet.account));
       var otheruser = this.fixaddress(this.validations[this.selected].objectdata.account);
       console.log('Zijn account: ', otheruser);
@@ -476,6 +481,8 @@ Example:
           console.log('his: ', hash, 'mine: ',myhash);
           // var myhash = 'mysha3hash';
 
+//debugger;
+
           result = myContractInstance.addVerification.sendTransaction(otheruser, hash, myhash , {
               from: this.fixaddress(this.web3wallet.account),
               gasPrice: gasPrice,
@@ -500,7 +507,7 @@ Example:
               }
             }.bind(this));
 
-          result2 = myContractInstance.checkVeracity.call('e04a5223bc810426e0bb864613eb99a80681fce5391ad89454468bf5a80ce1c4fd0626c6448509df00e7415ddc32cba01a4c299c27fa9840d0f7326ad8297b1b').toNumber();
+          result2 = myContractInstance.checkVeracity.call(myhash).toNumber();
           console.log('my hash', result2);
         }.bind(this));
       }.bind(this));
