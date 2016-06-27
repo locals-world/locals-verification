@@ -436,7 +436,7 @@ Example:
     addValidationToContract: function(cb) {
     
       this.web3wallet = document.querySelector('web3-wallet');
-//debugger;
+
       console.log('Mijn account: ', this.fixaddress(this.web3wallet.account));
       var otheruser = this.fixaddress(this.validations[this.selected].objectdata.account);
       console.log('Zijn account: ', otheruser);
@@ -451,8 +451,6 @@ Example:
           var MyContract = this.web3wallet.web3.eth.contract(this.contractjson.abi);
           var myContractInstance = MyContract.at(this.contractaddr);
 
-          //var otheruser = '0xfd5A58b4a5490A1A5928d08c4B9738877B97fFE9';// 'daisy'
-
           var acc= "";
           var self = this;
           Object.keys(this.validations[this.selected].objectdata.data).forEach(function(field){
@@ -464,7 +462,6 @@ Example:
 
           var hash = CryptoJS.SHA3(stringtohash).toString(CryptoJS.enc.Hex);
 
-          // var hash = 'sha3hash';
           var lsapi = document.querySelector("#lsapi");
           var mydata = lsapi.data.collection.localsavatar.data;
           
@@ -479,10 +476,7 @@ Example:
           var myhash = CryptoJS.SHA3(myaccount + acc).toString(CryptoJS.enc.Hex);
 
           console.log('his: ', hash, 'mine: ',myhash);
-          // var myhash = 'mysha3hash';
-
-//debugger;
-
+         
           result = myContractInstance.addVerification.sendTransaction(otheruser, hash, myhash , {
               from: this.fixaddress(this.web3wallet.account),
               gasPrice: gasPrice,
@@ -497,13 +491,8 @@ Example:
                 cb(err);
               } else {
                 console.log('Transaction Successful!');
-                //this.progress = 'addedtoindex';
                 console.log('Tx hash=', result);
-                // set vote status to TxHash received 
-                //self.transactionHash = result;
-
                 cb(null,result);
-
               }
             }.bind(this));
 
